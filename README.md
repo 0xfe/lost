@@ -2,6 +2,8 @@
 
 **A little rat. A long night.** A close-up isometric pixel-art study for a short film about finding a way home through a medieval city.
 
+![A rat sniffing, walking and scurrying along a candlelit medieval street](docs/media/lost.gif)
+
 This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 002 replaces four-frame sprite playback with a continuously articulated 3D rat, rasterized into pixel art. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Generated cobbles and castle masonry provide the street, and the original generated rat supplies an appearance reference and fur material. This is a motion study, not a complete movie.
 
 ## Run
@@ -54,6 +56,7 @@ WebGL is the default. `?renderer=canvas` explicitly selects the Canvas compariso
 npm run check          # assets, strict TypeScript, build, Node tests, memory-rendered PNGs
 npm run test:browser   # actual Chrome: WebGL/Canvas, desktop/mobile, input and controls
 npm run motion         # animated gait comparisons and contact/performance measurements
+npm run preview:gif    # regenerate the five-second README animation
 ```
 
 Browser tests use installed Google Chrome (`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` on macOS, `/usr/bin/google-chrome` on Linux). Override with `CHROME_PATH=/path/to/chrome`. Playwright Core does not download a browser. Tests start and stop their own local server; no separate preview is required.
