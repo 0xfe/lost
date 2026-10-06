@@ -7,5 +7,6 @@ export interface Atlas {
   roots: { x: number; y: number }[];
   noses: { x: number; y: number }[];
   liveRat:Region;
+  ratShadow:Region;
   fur:number[];
 }

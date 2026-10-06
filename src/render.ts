@@ -5,7 +5,8 @@ export interface Region { x: number; y: number; width: number; height: number }
 export interface DrawCommand {
   id: string; layer: number; depth: number;
   x: number; y: number; width: number; height: number;
-  corners?: QuadCorners; uvCorners?:QuadCorners; region?: Region; color: Color; flip?: boolean;
+  /** Surface corner tints: Canvas supports unflipped affine textured quads with standard UVs. */
+  corners?: QuadCorners; uvCorners?:QuadCorners; cornerColors?:readonly [Color,Color,Color,Color]; region?: Region; color: Color; flip?: boolean;
 }
 export interface TexturePatch extends PixelImage { x:number; y:number }
 export interface Frame { width: number; height: number; clear: Color; commands: DrawCommand[]; patches?:TexturePatch[] }
@@ -20,6 +21,12 @@ export interface Renderer { readonly name: string; readonly auxiliaryBytes?: num
 export function color(hex: string, alpha = 1): Color {
   const n = Number.parseInt(hex.replace('#', ''), 16);
   return [n >>> 16 & 255, n >>> 8 & 255, n & 255, Math.round(alpha * 255)];
+}
+/** Color interpolation across the same diagonal as the quad triangles. */
+export function quadColor(colors:readonly [Color,Color,Color,Color],u:number,v:number):Color {
+  const top=u+v<=1,a=colors[top?0:3],b=colors[top?1:2],c=colors[top?2:1];
+  const x=top?u:1-u,y=top?v:1-v;
+  return [0,1,2,3].map(i=>a[i]!+(b[i]!-a[i]!)*x+(c[i]!-a[i]!)*y) as unknown as Color;
 }
 export const WHITE: Color = [255, 255, 255, 255];
 export function sortCommands(commands: DrawCommand[]): DrawCommand[] {
@@ -48,7 +55,8 @@ export class MemoryRenderer implements Renderer {
       for (let y = y0; y < y1; y++) for (let x = x0; x < x1; x++) {
         const uv = c.corners ? quadUV(c.corners, x + .5, y + .5, c.uvCorners) : undefined;
         if (c.corners && !uv) continue;
-        let r = c.color[0], g = c.color[1], b = c.color[2], a = c.color[3] / 255;
+        const tint=c.cornerColors?quadColor(c.cornerColors,uv?.u??(x+.5-c.x)/c.width,uv?.v??(y+.5-c.y)/c.height):c.color;
+        let r = tint[0], g = tint[1], b = tint[2], a = tint[3] / 255;
         if (c.region) {
           let u = Math.max(0, Math.min(c.region.width - 1, Math.floor((uv?.u ?? (x + .5 - c.x) / c.width) * c.region.width)));
           if (c.flip) u = c.region.width - 1 - u;

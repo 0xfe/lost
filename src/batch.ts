@@ -9,14 +9,15 @@ export function writeQuads(commands: readonly DrawCommand[], width: number, heig
     const r = c.region;
     const u0 = (r?.x ?? 0) / width, v0 = (r?.y ?? 0) / height;
     const uw = (r?.width ?? 1) / width, vh = (r?.height ?? 1) / height;
-    const red = c.color[0] / 255, green = c.color[1] / 255, blue = c.color[2] / 255, alpha = c.color[3] / 255;
+
     for (let corner = 0; corner < 12; corner += 2) {
       const x = CORNERS[corner]!, y = CORNERS[corner + 1]!;
       const point = c.corners?.[x + y * 2];
       output[i++] = point?.x ?? c.x + x * c.width; output[i++] = point?.y ?? c.y + y * c.height;
       const uv=c.uvCorners?.[x+y*2],u=uv?.x??x,v=uv?.y??y;
       output[i++] = u0 + (c.flip ? 1 - u : u) * uw; output[i++] = v0 + v * vh;
-      output[i++] = red; output[i++] = green; output[i++] = blue; output[i++] = alpha;
+      const tint=c.cornerColors?.[x+y*2]??c.color;
+      output[i++] = tint[0]/255; output[i++] = tint[1]/255; output[i++] = tint[2]/255; output[i++] = tint[3]/255;
     }
   }
   return length;

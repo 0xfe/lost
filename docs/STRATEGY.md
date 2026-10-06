@@ -1,8 +1,14 @@
-# Study 002: finding his feet
+# Study 003: following his nose
 
 For the detailed construction, animation, texturing and reusable component design, see [rat-design.md](rat-design.md).
 
-## What changed, and why
+## This pass
+
+The rat now has more space around him on phone and laptop layouts. Paving and masonry are larger relative to the animal, and tall freestanding street lamps replace wall sconces. The same world-space lamp fields shade the street and the rat; a posed-mesh projection supplies his flat-ground cast shadow.
+
+Exploration is a seeded sequence of variable walking bouts, pauses, occasional scurries and scent detours. He maintains a route, notices a point to the side, approaches it, sniffs and returns. Performance tempo varies separately from footfall timing. Faster scurries add a little more body stretch and arch while preserving paw contacts. See [the exploration design](rat-design.md#exploration-and-irregular-timing) and [lighting details and limits](rat-design.md#street-scale-lighting-and-shadows).
+
+## Why the live model
 
 The first demo used four generated body poses per direction. Advancing those images by distance did not establish where each paw touched the street. The feet could slide even when the cycle rate looked plausible. Deforming the body image could not independently articulate its hidden limbs, neck or ears, and playing the same images faster could not produce a different gait.
 
@@ -30,7 +36,7 @@ The core invariant is simple: while a paw is planted, its world-space position s
 
 | Parameter | Walk | Scurry |
 | --- | --- | --- |
-| Root speed | 1.25 world units/s | 4.1 world units/s |
+| Nominal root speed | 1.25 world units/s | 4.1 world units/s |
 | Distance per full cycle | 0.50 | 0.94 |
 | Stance fraction | 0.70 per paw | 0.30 fore / 0.32 hind |
 | Contact organization | Four-beat lateral sequence | Slightly offset fore pair, then hind pair |
@@ -57,7 +63,7 @@ The CPU rasterizer handles rat self-occlusion, smooth normals, stable model-spac
 
 Stay close to one small animal. Show worn paving, the feet of heavy walls and occasional warm light. Keep the rat near the center and let the world pass beneath it. Hesitations, empty space, cool color and pacing should carry the sadness. The Home slider auditions a warmer ending; it does not implement a journey or destination.
 
-Ground points project as `(x − y, (x + y) / 2)`; height subtracts from screen Y. Floor tiles, wall segments, drains, sconces and puddles remain world-anchored. The normal scene constrains the actor to a corridor. Motion exports use an unbounded floor so a wall cannot interrupt gait inspection. Lighting, reflections and rain are artistic layers, not physical light transport.
+Ground points project as `(x − y, (x + y) / 2)`; height subtracts from screen Y. Floor tiles, wall segments, drains, upright lamps and puddles remain world-anchored. The normal scene constrains the actor to a corridor. Motion exports use an unbounded floor so a wall cannot interrupt gait inspection. Lamp falloff drives shared surface and model illumination, with one projected rat shadow. Reflections and rain remain artistic layers; there is no general world shadow map or physical light transport.
 
 The original implementation inspected Jungle at revision `50803498ad97b244042fb026ead4fc6fc47f2207` and reused its math, quad, render, batch, WebGL, Canvas and static-server foundations. We retain its useful separation of pure simulation, fixed 60 Hz updates, interpolated presentation, common rendering contract, bounded scene memory and offline asset preparation. The atlas remains 5.25 MiB decoded, within the 16 MiB atlas limit; this is not a total-process RAM limit.
 

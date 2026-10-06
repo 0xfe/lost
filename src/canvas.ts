@@ -1,5 +1,5 @@
 import type { Color, Frame, PixelImage, Region, Renderer } from './render';
-import { patchAtlas } from './render';
+import { patchAtlas, quadColor } from './render';
 /** Canvas fallback uses the same atlas and commands, with nearest-neighbor sampling. */
 export class CanvasRenderer implements Renderer {
   readonly name = 'Canvas 2D';
@@ -14,14 +14,15 @@ export class CanvasRenderer implements Renderer {
     this.sheet.width = atlas.width; this.sheet.height = atlas.height;
     this.sheet.getContext('2d')!.putImageData(new ImageData(new Uint8ClampedArray(atlas.data), atlas.width, atlas.height), 0, 0);
   }
-  private tint(region: Region, color: Color): HTMLCanvasElement {
-    const key = `${region.x},${region.y},${region.width},${region.height}:${color.slice(0, 3)}`;
+  private tint(region: Region, color: Color, corners?:readonly [Color,Color,Color,Color]): HTMLCanvasElement {
+    const key = `${region.x},${region.y},${region.width},${region.height}:${corners?.map(c=>c.slice(0,3)).join("/")??color.slice(0, 3)}`;
     const cached = this.tinted.get(key); if (cached) { this.tinted.delete(key); this.tinted.set(key, cached); return cached; }
     const sheet = document.createElement('canvas'); sheet.width = region.width; sheet.height = region.height;
     const pixels = new Uint8ClampedArray(region.width * region.height * 4);
     for (let y = 0; y < region.height; y++) for (let x = 0; x < region.width; x++) {
       const src = ((region.y + y) * this.atlas.width + region.x + x) * 4, dst = (y * region.width + x) * 4;
-      for (let c = 0; c < 3; c++) pixels[dst + c] = Math.round(this.atlas.data[src + c]! * color[c]! / 255);
+      const tint=corners?quadColor(corners,(x+.5)/region.width,(y+.5)/region.height):color;
+      for (let c = 0; c < 3; c++) pixels[dst + c] = Math.round(this.atlas.data[src + c]! * tint[c]! / 255);
       pixels[dst + 3] = this.atlas.data[src + 3]!;
     }
     sheet.getContext('2d')!.putImageData(new ImageData(pixels, region.width, region.height), 0, 0);
@@ -67,12 +68,12 @@ export class CanvasRenderer implements Renderer {
           ctx.save();ctx.transform(points[1].x-points[0].x,points[1].y-points[0].y,
             points[2].x-points[0].x,points[2].y-points[0].y,points[0].x,points[0].y);
           if(c.flip){ctx.translate(1,0);ctx.scale(-1,1);}
-          if(c.color[0]===255&&c.color[1]===255&&c.color[2]===255)
+          if(!c.cornerColors&&c.color[0]===255&&c.color[1]===255&&c.color[2]===255)
             ctx.drawImage(this.sheet,r.x,r.y,r.width,r.height,0,0,1,1);
-          else ctx.drawImage(this.tint(r,c.color),0,0,r.width,r.height,0,0,1,1);
+          else ctx.drawImage(this.tint(r,c.color,c.cornerColors),0,0,r.width,r.height,0,0,1,1);
           ctx.restore();continue;
         }
-        const source = this.tint(r, c.color);
+        const source = this.tint(r, c.color,c.cornerColors);
         for (let triangle = 0; triangle < 2; triangle++) {
           const a = points[triangle ? 3 : 0], b = points[triangle ? 2 : 1], d = points[triangle ? 1 : 2];
           const uv=c.uvCorners??[{x:0,y:0},{x:1,y:0},{x:0,y:1},{x:1,y:1}];
@@ -91,7 +92,7 @@ export class CanvasRenderer implements Renderer {
         const r = c.region;
         if (c.color[0] === 255 && c.color[1] === 255 && c.color[2] === 255)
           ctx.drawImage(this.sheet, r.x, r.y, r.width, r.height, 0, 0, c.width, c.height);
-        else ctx.drawImage(this.tint(r, c.color), 0, 0, c.width, c.height);
+        else ctx.drawImage(this.tint(r, c.color,c.cornerColors), 0, 0, c.width, c.height);
         ctx.restore();
       } else {
         ctx.fillStyle = `rgb(${c.color.slice(0, 3).join(',')})`; ctx.fillRect(c.x, c.y, c.width, c.height);

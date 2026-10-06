@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { mkdir, readFile, stat } from 'node:fs/promises';
 import sharp from 'sharp';
+import { DEFAULT_ZOOM } from '../src/world/street';
 import { Rat } from '../src/simulation';
 import { compose } from '../src/scene';
 import { MemoryRenderer } from '../src/render';
@@ -18,7 +19,7 @@ for(let frame=0;frame<frames;frame++){
   const time=frame/fps;
   rat.command(time<.75?'sniff':time<2.75?'walk':time<4?'scurry':'idle');
   for(let step=0;step<60/fps;step++)rat.update(1/60);
-  renderer.render(compose(rat.current,atlas,{width,height,zoom:1.1,rain:true}));
+  renderer.render(compose(rat.current,atlas,{width,height,zoom:DEFAULT_ZOOM,rain:true}));
   const pixels=Buffer.from(renderer.pixels.data);
   // Dissolve back to the opening scene; the first frame also works as a static thumbnail.
   const blend=Math.max(0,(frame-(frames-8))/7);

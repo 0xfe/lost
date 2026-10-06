@@ -1,3 +1,4 @@
+import { clamp } from '../math';
 import type { Pose } from './types';
 import { rotate } from '../model/vector';
 import { loft, type Mesh } from '../model/mesh';
@@ -8,12 +9,12 @@ const TAU=Math.PI*2;
 
 /** Rat silhouette and body deformation; returns attachment transforms for the other parts. */
 export function buildBody(mesh:Mesh,p:Pose){
-  const run=p.gallop*p.activity,phase=p.stride*TAU;
+  const run=p.gallop*p.activity*(1+clamp((p.speed-3.3)/1.6,0,1)*.16),phase=p.stride*TAU;
   const gather=Math.cos(phase-TAU*.47);
   const stretch=1-run*.115*gather;
   const sway=Math.sin(phase)*.018*p.activity*(1-run*.8);
   const lift=run*(.022+Math.sin(phase-TAU*.69)*.027);
-  const breath=Math.sin(p.time*4.8)*.004*(1-p.activity*.6);
+  const breath=Math.sin(p.motionTime*4.8)*.004*(1-p.activity*.6);
   const bodyPoint=(x:number,y:number,z:number):V3=>[
     x*stretch,y+sway*Math.cos(x*3),z+lift+breath+run*.058*gather*Math.exp(-x*x*7)+p.groom*.04*(x+.6),
   ];

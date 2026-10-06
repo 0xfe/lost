@@ -1,11 +1,13 @@
+import { Exploration } from './rat/exploration';
+import { STREET_HALF_WIDTH } from './world/street';
+export { STREET_HALF_WIDTH } from './world/street';
 import { constrainContactTurn } from './animation/contacts';
 import { updateTrailingChain } from './animation/chain';
-import { clamp, lerp } from './math';
+import { clamp, lerp, noise } from './math';
 import { createFeet, updateFeet, FEET, GAITS, type Gait } from './rat/locomotion';
 import type { Action, Pose } from './rat/types';
 
 export const TAU = Math.PI * 2;
-export const STREET_HALF_WIDTH = 2.3;
 export type { Action, Pose } from './rat/types';
 export const ACTIONS: Action[] = ['idle', 'walk', 'scurry', 'sniff', 'listen', 'groom'];
 export const angleDelta = (a: number, b: number) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
@@ -28,26 +30,35 @@ export class Rat {
   requested: Action = 'sniff';
   explore = true;
   mood = .12;
-  constructor(private options:{streetHalfWidth?:number}={}) {
+  readonly exploration:Exploration;
+  constructor(private options:{streetHalfWidth?:number;seed?:number}={}) {
+    this.exploration=new Exploration(options.seed);
     this.current = { x: 0, y: 0, heading: .05, speed: 0, stride: 0, time: 0,
       tail: Array.from({ length: 19 }, (_, i) => ({ x: -.65 - i * .062, y: 0 })),
       action: 'sniff', mood: .12,feet:createFeet({x:0,y:0,heading:.05}),gait:'walk',gallop:0,activity:0,
-      sniff:1,listen:0,groom:0,headYaw:0 };
+      sniff:1,listen:0,groom:0,headYaw:0,motionTime:0,tempo:1 };
     this.previous = clone(this.current);
   }
   command(action: Action): void {
     this.explore = false; this.requested = action;
   }
-  steer(heading: number): void { this.targetHeading = heading; this.explore = false; }
+  steer(heading: number): void {
+    this.targetHeading=heading;
+    if(this.explore)this.exploration.redirect(heading,this.current);
+  }
+  setExploring(enabled:boolean):void {
+    this.explore=enabled;
+    if(enabled)this.exploration.redirect(this.targetHeading,this.current);
+    else this.command('idle');
+  }
   update(dt: number): void {
     this.previous = clone(this.current);
     const p = this.current;
     p.time += dt;
-    if (this.explore) {
-      const cycle = p.time % 22;
-      this.requested = cycle < 3 ? 'sniff' : cycle < 12 ? 'walk' : cycle < 15 ? 'listen' : 'walk';
-      this.targetHeading = Math.sin(p.time * .19) * .26 - p.y * .45;
-    }
+    const intent=this.explore?this.exploration.update(p,dt,this.options.streetHalfWidth??STREET_HALF_WIDTH):undefined;
+    if(intent){this.requested=intent.action;this.targetHeading=intent.heading;}
+    const tempo=intent?.tempo??(.7+noise(p.time*1.4,4,this.options.seed??7319)*.75);
+    p.tempo=lerp(p.tempo,tempo,1-Math.exp(-dt*6));p.motionTime+=dt*p.tempo;
     const error = angleDelta(p.heading, this.targetHeading);
     let turn=clamp(error,-dt*2.8,dt*2.8);
     // Let a planted pivot unload its feet before twisting the shoulders out of reach.
@@ -55,7 +66,7 @@ export class Rat {
     p.heading+=turn;
     const moving = this.requested === 'walk' || this.requested === 'scurry';
     // Turn first; translation follows the body's heading.
-    const cruise = this.requested === 'scurry' ? GAITS.scurry.speed : GAITS.walk.speed;
+    const cruise = (this.requested === 'scurry' ? GAITS.scurry.speed : GAITS.walk.speed)*(intent?.speed??1);
     const target = moving && Math.abs(error) < .25 ? cruise : 0;
     p.speed += clamp(target - p.speed, -dt * 9, dt * 5.5);
     const distance = Math.abs(error) < .4 ? p.speed * dt : 0;
@@ -71,8 +82,8 @@ export class Rat {
     p.gallop=lerp(p.gallop,p.gait==='scurry'?1:0,1-Math.exp(-dt*9));
     p.activity=lerp(p.activity,Math.min(1,p.speed/.6),1-Math.exp(-dt*12));
     for(const name of ['sniff','listen','groom'] as const)p[name]=lerp(p[name],p.action===name?1:0,1-Math.exp(-dt*7));
-    const scan=(Math.sin(p.time*.83)*.16+Math.sin(p.time*1.91)*.07)*(1-p.activity*.85);
-    p.headYaw=lerp(p.headYaw,clamp(error*.5,-.40,.40)+scan*(1-p.groom),1-Math.exp(-dt*7));
+    const scan=(Math.sin(p.motionTime*.83)*.16+Math.sin(p.motionTime*1.91)*.07)*(1-p.activity*.85);
+    p.headYaw=lerp(p.headYaw,clamp(error*.5+(intent?.look??0),-.50,.50)+scan*(1-p.groom),1-Math.exp(-dt*7));
     p.mood = lerp(p.mood, this.mood, 1 - Math.exp(-dt * 1.4));
     updateFeet(p,dt,Math.hypot(p.x-this.previous.x,p.y-this.previous.y));
     this.updateTail(dt);
@@ -92,7 +103,7 @@ export class Rat {
     return { ...b, x: lerp(a.x, b.x, alpha), y: lerp(a.y, b.y, alpha),
       heading: a.heading + angleDelta(a.heading, b.heading) * alpha,
       speed: lerp(a.speed, b.speed, alpha), stride: lerp(a.stride, b.stride, alpha),
-      time: lerp(a.time, b.time, alpha), mood: lerp(a.mood, b.mood, alpha),
+      time: lerp(a.time, b.time, alpha), motionTime:lerp(a.motionTime,b.motionTime,alpha),tempo:lerp(a.tempo,b.tempo,alpha), mood: lerp(a.mood, b.mood, alpha),
       gallop:lerp(a.gallop,b.gallop,alpha),activity:lerp(a.activity,b.activity,alpha),
       sniff:lerp(a.sniff,b.sniff,alpha),listen:lerp(a.listen,b.listen,alpha),groom:lerp(a.groom,b.groom,alpha),
       headYaw:lerp(a.headYaw,b.headYaw,alpha),

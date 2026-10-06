@@ -44,6 +44,9 @@ The reusable modules never import the rat, scene, browser UI or application simu
 | [`src/model/material.ts`](../src/model/material.ts) | Solid colors, named scalar textures and repeat sampling |
 | [`src/model/camera.ts`](../src/model/camera.ts) | Fixed 2:1 isometric projection and configurable sprite framing |
 | [`src/model/raster.ts`](../src/model/raster.ts) | Mesh-to-RGBA conversion, depth, lighting and optional outline |
+| [`src/model/shadow.ts`](../src/model/shadow.ts) | Project posed meshes from a point light onto a flat ground plane |
+| [`src/world/street.ts`](../src/world/street.ts) | Physical scene scale, responsive framing and shared lamp illumination |
+| [`src/rat/exploration.ts`](../src/rat/exploration.ts) | Seeded route-following, variable bouts and scent detours |
 | [`src/animation/contacts.ts`](../src/animation/contacts.ts) | Any-count ground contacts, swing/recovery and pivot reach guard |
 | [`src/animation/ik.ts`](../src/animation/ik.ts) | Two-link inverse kinematics |
 | [`src/animation/curves.ts`](../src/animation/curves.ts) | Periodic accents, quintic easing and Catmull–Rom interpolation |
@@ -137,6 +140,16 @@ The rat turns toward a requested heading, with a maximum turn rate of 2.8 radian
 
 These are rat and scene policies, not part of `rasterMesh()` or the mesh definition. An insect may turn differently; a plant has no translating motor at all.
 
+### Exploration and irregular timing
+
+`Exploration` produces an intention—action, heading, speed multiplier, performance tempo and gaze—without directly moving the root or paws. The motor and contact planner still enforce acceleration, turning and stance constraints. Seeded event choices determine what happens next; smooth seeded noise varies pace and attention within a bout. This avoids choosing a new random direction every frame and remains reproducible at any presentation rate.
+
+The phases are `travel → notice → approach → investigate → return`, with ordinary pauses interspersed between travel bouts. Travel lasts 1.6–5.2 seconds, usually walking; 14% of travel-bout choices request scurry. Small heading deviations surround the selected route, with cross-track correction and corridor avoidance. Pace has both slow variation and brief hesitations. The compass changes that route while keeping exploration active; a manual action takes over.
+
+After at least two travel bouts, some bouts detect an authored scent point to either side. The rat first notices it, then scurries toward it and brakes into a walk. Near the target he sniffs and changes gaze for 1.2–3.3 seconds, then returns to a saved point on his route. Approach and return have nine-second escape timers so an awkward turn cannot strand him. These are invisible behavioral targets, not simulated odors or a navigation mesh. Pauses last .35–1.95 seconds and choose sniff or listen. The ratios describe choices, not exact screen-time percentages: turning and braking take time too.
+
+A separate `motionTime` integrates a smoothly varying `tempo`. It drives breathing, head movement, ear flicks, whiskers and blinking, including during manual sniff/listen. Exploration requests roughly .6–1.65 times normal performance speed. Locomotion remains distance-driven: changing attention tempo cannot speed up planted feet or slide them across the stones.
+
 ### Ground contact planning
 
 `createContacts(root, homes)` accepts any number of local contact homes. `updateContacts()` receives those homes, a gait pattern, recovery settings and an optional gesture-target callback. There is no four-leg assumption or rat action vocabulary inside the planner. Its arrays must have matching lengths. Supply positive stride/recovery lengths and durations, phase offsets in `[0, 1)`, and stance fractions between zero and one.
@@ -157,7 +170,7 @@ The rat's homes are ordered LF, RF, LH, RH. Fore homes are at X `+.34`, Y `±.16
 
 | Setting | Walk | Scurry |
 | --- | --- | --- |
-| Root speed | 1.25 units/s | 4.1 units/s |
+| Nominal root speed (exploration varies it) | 1.25 units/s | 4.1 units/s |
 | Distance per full cycle | .50 | .94 |
 | Phase offsets, LF/RF/LH/RH | .22 / .72 / 0 / .50 | 0 / .08 / .49 / .55 |
 | Stance fractions | .70 each | .30 fore, .32 hind |
@@ -180,9 +193,9 @@ This solver returns a joint position; it does not move endpoints, enforce joint-
 
 ### Trunk, head and small movements
 
-The trunk combines low-amplitude walking sway and breathing with stronger gallop effects. Galloping introduces approximately ±11.5% longitudinal stretch, a gathered arch and vertical motion. Shoulder and hip attachments follow these deformations, while planted paws remain on the ground. This combination makes the limbs flex around support rather than bobbing the whole animal as a rigid object.
+The trunk combines low-amplitude walking sway and breathing with stronger gallop effects. Galloping introduces approximately ±11.5% longitudinal stretch, a gathered arch and vertical motion. Above 3.3 units/s, these body effects gain up to another 16%, reaching their cap at 4.9 units/s; joint solving still respects the same planted contacts. Shoulder and hip attachments follow these deformations, while planted paws remain on the ground. This combination makes the limbs flex around support rather than bobbing the whole animal as a rigid object.
 
-Head pitch combines baseline posture with sniff, listen and groom weights. Head yaw anticipates requested turns and adds a slow scan at rest. Sniffing adds quicker small nose movement. The ears have separate 4.7- and 6.1-second accent schedules; blinking uses a 5.3-second schedule. The shared `pulse()` produces brief sine-squared accents. These deterministic schedules are artistic timing, not randomness or a physiological model.
+Head pitch combines baseline posture with sniff, listen and groom weights. Head yaw anticipates requested turns and adds a slow scan at rest. Sniffing adds quicker small nose movement. The ears have separate 4.7- and 6.1-unit performance-clock accent schedules; blinking uses a 5.3-unit schedule. Their wall-clock intervals vary with attention tempo. The shared `pulse()` produces brief sine-squared accents. These deterministic curves and seeded timing changes are authored performance, not a physiological model.
 
 Whiskers are five three-segment chains on each side. They follow the head transform and sweep with different left/right phases. Paw washing is a rat-specific gesture callback: it releases the fore contacts, raises them toward the muzzle and lets the generic recovery mechanism return them afterward.
 
@@ -212,19 +225,31 @@ UVs are attached to the generated surface and interpolated inside each triangle.
 
 `rasterMesh(mesh, camera, style, textures)` allocates RGBA pixels and a floating-point depth buffer. It projects vertices, computes their diffuse lighting, and scans each triangle's pixel bounding box. Barycentric weights at pixel centers interpolate depth, shade and UVs. The nearest triangle wins the depth test, so the far legs disappear correctly behind the body regardless of triangle submission order when depths differ.
 
-The rat's directional light is the normalized vector `[-.7, -1, 2.2]`. Shade begins at `.52 + max(0, normal · light) * .52`, is multiplied by the scalar texture, then rounded to 24 steps. A mood-dependent RGB tint shifts the animal from cool to warm. This is simple directional shading, not ray tracing, material BRDFs or lighting sampled from nearby lanterns.
+The standalone rat wrapper and diagnostic studies use a normalized directional light `[-.7, -1, 2.2]`, ambient .52 and diffuse .52. The street overrides these with much lower ambient light (`.24 + mood * .07`), a weak directional moon (.16), and nearby point lights. Each point light adds `max(0, normal · directionToLight) * power * exp(-1.35 * (horizontalDistance / radius)²)` at a vertex. Shade is multiplied by the scalar fur texture and rounded to 24 steps. A scene tint becomes warmer near lamps. This is authored diffuse lighting, not ray tracing or a measured material BRDF.
 
-An optional one-pixel, four-neighbor outline is added around opaque pixels. Rat outline color is `[50, 44, 38, 160]`. There is no antialiasing pass, blur, temporal noise or crossfade between unrelated body images. The scene's lower internal resolution and nearest-neighbor display scaling make the pixel structure visible.
+An optional one-pixel, four-neighbor outline is added around opaque pixels. The standalone rat outline is `[50, 44, 38, 160]`; the night scene uses `[18, 23, 29, 125]`. There is no antialiasing pass, blur, temporal noise or crossfade between unrelated body images. The scene's lower internal resolution and nearest-neighbor display scaling make the pixel structure visible.
 
 ### From model pixels to the scene
 
-The live rat occupies a reserved atlas region at `(800, 600)`, size 384 × 288. `scene.ts` emits a `TexturePatch` plus a draw command using that region. The generic frame contract permits multiple patches; adding another model requires a separate nonoverlapping region and its own draw command.
+The live rat occupies a reserved atlas region at `(800, 600)`, size 384 × 288. Its cast shadow uses `(1184, 600)`, size 352 × 288. `scene.ts` emits two `TexturePatch` objects and corresponding draw commands. The generic frame contract permits multiple patches; adding another model requires a separate nonoverlapping region and its own draw command.
 
 WebGL updates the region with `texSubImage2D`, then draws the scene in its existing painter-ordered batch. Canvas updates its atlas canvas and invalidates overlapping tinted copies. The memory renderer updates the same atlas bytes before software compositing. The rat rasterizer does not call WebGL, and the renderers do not know about rats.
 
-Rat self-occlusion happens inside its z-buffer. Occlusion between separate scene objects still depends on scene draw ordering; this is not a shared 3D world depth buffer. Contact shadows and the broader body shadow are separate scene commands, not part of the model texture.
+Rat self-occlusion happens inside its z-buffer. Occlusion between separate scene objects still depends on scene draw ordering; this is not a shared 3D world depth buffer. Contact shadows and the projected cast shadow are separate scene commands, not part of the model texture.
 
 The atlas remains 1536 × 896, or 5.25 MiB decoded. Its 16 MiB budget covers the atlas, not all process memory: posed mesh arrays, depth/RGBA buffers and temporary copies also exist. The current one-character raster cost is measured by `npm run motion`. More characters may justify scratch-buffer reuse, pose caching or GPU rasterization, but none is required merely to define a new model.
+
+### Street scale, lighting and shadows
+
+The actor and all world features use the same scene projection. The default zoom is .9; narrow/short viewports also multiply scale by `min(1, width / 700, height / 440)`. The root stays horizontally centered and vertically near the middle (.46–.51 of viewport height, depending on aspect). The model is not independently shrunk: that would separate its rendered paws from their world contacts. Wider framing supplies breathing room while larger paving and masonry establish a small animal's surroundings.
+
+The 256-pixel paving image repeats every six world units, twice the earlier span. Castle masonry spans eight units horizontally and six vertically. Ground lighting uses 1.5-unit cells and 64-pixel subregions of the original texture, so enlarging the stones does not require coarse lighting. Each cell's four corners sample the same lamp field; the renderers interpolate RGB across the two quad triangles. Canvas bakes those tints into small cached texture crops; the cache remains bounded. Its corner-color path currently supports standard-UV, unflipped affine textured surfaces, which is what this street uses.
+
+Freestanding iron lamp posts alternate between street edges every 14 units. Each has a stone plinth, upright shaft, collars, enclosed amber lantern and peaked cap, reaching 8.73 units high. Their positions and mild deterministic flicker drive both masonry/paving tint and the rat's point lighting. A 5.3-unit falloff radius leaves darker gaps between warm pools. Dim blue ambient illumination keeps the silhouette legible away from lamps. The Home control warms the ambient palette but does not erase these pools.
+
+`rasterShadow()` projects the current mesh from the strongest nearby lamp onto `z = 0`. For light `L` and vertex `P`, the intersection is `L + (P − L) * L.z / (L.z − P.z)`. It then rasterizes the projected triangles into a separate transparent black patch through the same camera and registration as the rat. This reusable helper assumes the light is above the whole mesh. Shadow opacity follows lamp strength; small contact masks supply grounding in the darkest gaps.
+
+The cast silhouette changes with pose and light direction. Only the dominant lamp casts a rat shadow; transitions between dominant lamps can change its direction. There are no wall shadow maps, inter-object light occlusion, penumbrae, terrain heights or bounced light. Lamp posts have a small contact shadow, not a full projected shaft shadow. These are deliberate flat-street approximations, not physical light transport.
 
 ## Creating another subject
 
@@ -256,7 +281,7 @@ Integrate only after inspecting all headings and action extremes. Reserve enough
 
 ## Verification and limits
 
-The refactor recorded simulation-state hashes and raw RGBA hashes from commit `878c9f6`, before extracting the shared components. [`tests/fixtures/rat-reference.json`](../tests/fixtures/rat-reference.json) covers eight stages with walking, scurrying, grooming, sniffing, listening, stopping and changed headings. Each stage checks three presentation fractions: 0, .5 and 1. The regression test compares the refactored rat against those saved values rather than against another call to the new code. These are exact local regression samples, not an exhaustive proof of every possible pose or platform.
+[`tests/fixtures/rat-reference.json`](../tests/fixtures/rat-reference.json) stores reviewed state and RGBA hashes for eight manual-action stages and three presentation fractions (0, .5, 1). The original fixture proved that component extraction preserved revision `878c9f6`. Study 003 intentionally refreshes those values for variable performance tempo and speed-dependent gallop exaggeration; the fixture records that reason and the prior reference revision. These are exact local regression samples, not an exhaustive proof of every possible pose or platform.
 
 Other tests check contact locking, limb lengths, distinct support patterns, stopping and turning, deterministic output, sprite bounds, non-rat rendering, rectangular textures, depth ordering and import boundaries. The headless examples produce actual pixels. Browser tests exercise WebGL and Canvas, desktop/mobile viewports and Motion lab controls. Headless WebGL uses SwiftShader, so this is not a performance guarantee for every physical GPU.
 
@@ -270,7 +295,7 @@ npm run motion         # animated comparisons, support data and CPU timings
 
 Use `/?lab` to inspect quarter-speed movement, one-step advances, paw contacts and joint overlays. Judge the unobstructed silhouette as well as the diagnostic lines. Passing mechanical tests does not itself establish believable acting.
 
-Current limits include authored rather than measured anatomy; kinematic rather than force-based locomotion; flat ground contacts; approximate shoulder/spine movement; planar tail dynamics; opaque materials; no general skeletal skinning or animation importer; and simplified grooming. The refactor preserves these deliberate limits along with the existing appearance. Future refinements should improve the subject-specific model and performance while retaining the shared contact and rendering contracts.
+Current limits include authored rather than measured anatomy; kinematic rather than force-based locomotion; flat ground contacts; approximate shoulder/spine movement; planar tail dynamics; opaque materials; no general skeletal skinning or animation importer; and simplified grooming. Exploration adds authored behavior around these mechanical limits; it does not remove them. Future refinements should improve the subject-specific model and performance while retaining the shared contact and rendering contracts.
 
 ## Tools, provenance and references
 
@@ -302,3 +327,7 @@ These sources informed animation choices; their figures, datasets and motion cli
 - [*Spinal control of locomotion before and after spinal cord injury* (2023)](https://pmc.ncbi.nlm.nih.gov/articles/PMC10055332/): rat locomotion includes different speed-dependent alternating and non-alternating gaits. This supports separating walking and galloping schedules rather than treating speed as a clip playback setting.
 - [Bonnan et al., *Forelimb Kinematics of Rats Using XROMM* (2016)](https://pmc.ncbi.nlm.nih.gov/articles/PMC4775064/), DOI `10.1371/journal.pone.0149377`: crouched forelimb posture and the contribution of proximal movement informed bent limbs and a gliding shoulder attachment. The simplified rig does not implement all the measured long-axis rotations.
 - [Towal and Hartmann, *Right–Left Asymmetries in the Whisking Behavior of Rats Anticipate Head Movements* (2006)](https://pubmed.ncbi.nlm.nih.gov/16928873/), DOI `10.1523/JNEUROSCI.0581-06.2006`: asymmetric exploratory whisking informed separate left/right phases and head-following whiskers. The current oscillators are authored accents, not a fitted sensory model.
+
+- [*Coordination of Orofacial Motor Actions into Exploratory Behavior by Rat* (2017)](https://pmc.ncbi.nlm.nih.gov/articles/PMC5653531/): coordinated nose/head and breathing actions informed a separate, variable attention clock.
+- [*Multiple Modes of Phase Locking between Sniffing and Whisking during Active Exploration* (2013)](https://pmc.ncbi.nlm.nih.gov/articles/PMC3785235/): motivated varying sniff/whisk performance instead of looping every exploratory pause identically.
+- [*Flexible Coupling of Respiration and Vocalizations with Locomotion and Head Movements in the Freely Behaving Rat* (2016)](https://pmc.ncbi.nlm.nih.gov/articles/PMC4976156/): supports treating exploratory head activity and locomotion as related but independently variable. The bout durations, scent locations and tempo ranges here remain authored choices.

@@ -1,6 +1,6 @@
 import type { PixelImage } from '../render';
 import type { Mesh } from './mesh';
-import { dot, unit, type V3 } from './vector';
+import { dot, sub, unit, type V3 } from './vector';
 import { projectIso, type IsoCamera } from './camera';
 import { sampleScalar, type RGB, type TextureSet } from './material';
 
@@ -11,6 +11,7 @@ export interface RasterStyle {
   shadeSteps: number;
   tint: RGB;
   outline?: readonly [number,number,number,number];
+  points?:readonly {position:V3;power:number;radius:number}[];
 }
 /** Opaque triangles, orthographic z-buffer and optional one-pixel alpha outline. */
 export function rasterMesh(mesh:Mesh,camera:IsoCamera,style:RasterStyle,textures:TextureSet={}):PixelImage {
@@ -18,7 +19,12 @@ export function rasterMesh(mesh:Mesh,camera:IsoCamera,style:RasterStyle,textures
   const data=new Uint8Array(width*height*4),depth=new Float32Array(width*height).fill(-Infinity);
   const vertices=mesh.vertices.map(v=>{
     const diffuse=Math.max(0,dot(v.n,light));
-    return {...projectIso(v.p,camera),shade:style.ambient+diffuse*style.diffuse,
+    let shade=style.ambient+diffuse*style.diffuse;
+    for(const point of style.points??[]){
+      const toward=sub(point.position,v.p),distance=Math.hypot(toward[0],toward[1])/point.radius;
+      shade+=Math.max(0,dot(v.n,unit(toward)))*point.power*Math.exp(-distance*distance*1.35);
+    }
+    return {...projectIso(v.p,camera),shade,
       u:v.u,v:v.v,material:v.material};
   });
   for(let tri=0;tri<mesh.indices.length;tri+=3){

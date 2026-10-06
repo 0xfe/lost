@@ -61,7 +61,7 @@ const luminance=Array.from({length:1024},(_,i)=>(furPixels[i*3]*.3+furPixels[i*3
 const mean=luminance.reduce((a,b)=>a+b,0)/luminance.length;
 // Remove the painted source's broad lighting contrast; the live mesh supplies its own light.
 const fur=luminance.map(v=>Math.round(Math.max(.84,Math.min(1.16,1+(v/mean-1)*.40))*100)/100);
-const atlas={width,height,floor,wall,glow,shadow,rat,anchors,roots:points(roots),noses:points(noses),liveRat:{x:800,y:600,width:384,height:288},fur};
+const atlas={width,height,floor,wall,glow,shadow,rat,anchors,roots:points(roots),noses:points(noses),liveRat:{x:800,y:600,width:384,height:288},ratShadow:{x:1184,y:600,width:352,height:288},fur};
 await sharp(data,{raw:{width,height,channels:4}}).png().toFile('public/assets/atlas.png');
 await writeFile('public/assets/atlas.json',JSON.stringify(atlas));
 const sources={};

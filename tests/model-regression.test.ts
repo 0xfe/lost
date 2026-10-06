@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto';
 import { Rat, type Action } from '../src/simulation';
 import { rasterRat } from '../src/rat/raster';
 
-test('component extraction preserves pre-refactor rat states and interpolated RGBA pixels',async()=>{
+test('reviewed rat states and interpolated RGBA pixels remain stable',async()=>{
   const baseline=JSON.parse(await readFile('tests/fixtures/rat-reference.json','utf8')) as {
     frames:{action:Action;heading:number;ticks:number;state:string;pixels:string[]}[];
   };

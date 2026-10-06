@@ -15,6 +15,19 @@ try{
   await page.goto(`http://127.0.0.1:${port}/?test=1&paused&time=6`);await page.waitForFunction(()=>window.__lost?.frames>2);
   assert.equal(await page.evaluate(()=>window.__lost.renderer),'WebGL');
   await page.screenshot({path:'artifacts/browser-webgl.png'});
+  assert.equal(await page.locator('#zoom').inputValue(),'90');
+  assert.equal(await page.evaluate(()=>window.__lost.frame().patches.length),2);
+  await page.getByRole('button',{name:'Face northwest',exact:true}).click();
+  assert.equal(await page.evaluate(()=>window.__lost.rat.explore),true);
+  await page.evaluate(()=>window.__lost.advance(2));
+  assert.ok(Math.abs(await page.evaluate(()=>window.__lost.rat.exploration.route)-Math.atan2(-.5,-1.5))<1e-8);
+  await page.goto(`http://127.0.0.1:${port}/?test=1&paused&time=12.5`);
+  await page.waitForFunction(()=>window.__lost?.frames>2);
+  assert.equal(await page.evaluate(()=>window.__lost.rat.exploration.phase),'investigate');
+  await page.screenshot({path:'artifacts/browser-scent.png'});
+  await page.evaluate(()=>window.__lost.advance(7));
+  assert.equal(await page.evaluate(()=>window.__lost.rat.exploration.phase),'travel');
+
   await page.getByRole('button',{name:'Motion lab',exact:true}).click();
   assert.equal(await page.locator('#lab').isVisible(),true);
   await page.locator('#time-scale').selectOption('0.25');
@@ -39,10 +52,16 @@ try{
   await page.getByRole('button',{name:'Reset',exact:false}).click();
   await page.keyboard.down('ArrowRight');await page.waitForFunction(()=>window.__lost.rat.current.speed>.3);await page.keyboard.up('ArrowRight');assert.equal(await page.evaluate(()=>window.__lost.rat.requested),'idle');
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:'artifacts/browser-mobile.png'});
+  assert.equal(await page.locator('#zoom').inputValue(),'90');
+  const actorBottom=await page.evaluate(()=>{
+    const frame=window.__lost.frame(),body=frame.commands.find(c=>c.id.startsWith('rat-body'));
+    return (body.y+body.height)/frame.height*innerHeight;
+  });
+  assert.ok(actorBottom<await page.locator('#controls').evaluate(el=>el.getBoundingClientRect().top));
   assert.ok(await page.locator('#controls').evaluate(el=>el.getBoundingClientRect().right<=innerWidth));
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.goto(`http://127.0.0.1:${port}/?test=1&renderer=canvas&paused&time=6`);await page.waitForFunction(()=>window.__lost?.frames>2);
   assert.equal(await page.evaluate(()=>window.__lost.renderer),'Canvas 2D');await page.screenshot({path:'artifacts/browser-canvas-mobile.png'});
   await page.setViewportSize({width:1440,height:960});await page.screenshot({path:'artifacts/browser-canvas.png'});
-  assert.deepEqual(errors,[]);console.log('Browser checks passed: WebGL, Canvas, desktop/mobile, actions, facing, mood, keyboard, pause, notes.');
+  assert.deepEqual(errors,[]);console.log('Browser checks passed: WebGL, Canvas, desktop/mobile, actions, facing, mood, keyboard, pause, notes, exploration routes, scent returns, responsive framing and shadow patches.');
 }finally{await browser?.close();server.close();}

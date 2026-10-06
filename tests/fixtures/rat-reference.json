@@ -1,94 +1,95 @@
 {
-  "revision": "878c9f6",
-  "description": "Pre-refactor simulation and RGBA hashes, including interpolated poses.",
+  "revision": "study-003",
+  "description": "Reviewed Study 003 manual poses: intentionally updated for variable performance tempo and speed-dependent gallop body motion. Original component extraction was checked against 878c9f6.",
   "frames": [
     {
       "action": "walk",
       "heading": 0.05,
       "ticks": 150,
-      "state": "a00b2bdb51ae9d81fbc01b22c1ab4100eb676837299889fe84916bda7afcb641",
+      "state": "653d5a9cb0188f138760aab77e3d2cf8d4ede5ad8ea03c7d891494e12370b0f6",
       "pixels": [
-        "d60595905f8acc79433f72bdf2a1e731d8704e6cb0074fb3e77b7dc648f4b8a3",
-        "21f75d13767f64d3cbf940c2c443e2e36e48fdd461747c29d70dcc5e923ae0f5",
-        "989fe64f849ad42827cf46ad76cb5496c5aac22917a61e7a7a3bc75d049fee72"
+        "11486512571bc0dbeb64293c79fab1cd58d0a94a2ca21d421bed3537075ed90d",
+        "de72530dadaa6fd27514695372b5cc0b716861d94d32728b49fc8bdb74097c58",
+        "a3861d9ca190cebfd1aa3639793e0e332816ded5abf91ad088f3455a8320ed2b"
       ]
     },
     {
       "action": "scurry",
       "heading": 0.05,
       "ticks": 73,
-      "state": "b6fdf8e89c5f5899596c3900334215af4f8d528e69facf2f5ab4062c936211e2",
+      "state": "7b93d8c1c168e8d6720ba79182abac0f2df917f404c42e252f45e1312a1449fc",
       "pixels": [
-        "f506a6c98cf65a4ec444e4fed9be16eb2831486c358ac4f6c89534acec0adc5f",
-        "e457bbf54c892750940af4ab7686f927bf9a89b557cdee430c53ea05afef47d1",
-        "6254ab4b04c997d07feda76216d13f7ed256d1288aa078e7d01053e83b922ba8"
+        "80d27bdb84a8dbce1e09969d1a3a103b38a15907d0316aee55b115b3fc6aea42",
+        "7c824ad58496783eee921e648663ea9772b8cdc7f29947b619d5a939d8106419",
+        "5d2c81523cdc8d3562def4cbf74620ca0f8f7493e30d5b3bdb5dcaea048ec0b0"
       ]
     },
     {
       "action": "groom",
       "heading": -0.7,
       "ticks": 80,
-      "state": "212d82710f9014d3c8ed5b7b8d54f40be2660505ac0fd75e79a6f903c23f0ebc",
+      "state": "077b8801dde3e85b1a1b2496c500515070333e6742bca7531394dcd229a967f2",
       "pixels": [
-        "008347d59734987ddf6d749d4d1f126f4d38b725c1c10e5dd8c66ff8c886053e",
-        "a51d4d6a4dd20d8b0bd7730d33b192f0c7defd697ffc59394da4614a2dbda5cb",
-        "85d66c313ce52e4fb9eca030921b9acc4f34c1324f51b7dab7e166e78eead756"
+        "ac9a06069ba1d87992d5ebe005c6e0626c88d6fdb57fbf30b648063d37e8dafe",
+        "fd8d4fa51a0190caf5378061d5cab5cb0d7264ce990145a81cd2db341e95731e",
+        "0bf5b4889dea0076c70ccddb8c1793c0456e435383ffcb539f28d7e286bd3a86"
       ]
     },
     {
       "action": "sniff",
       "heading": 1.2,
       "ticks": 42,
-      "state": "707d22255d1165aa12746b72c1b161f0767608e6b838bd3bc386574ec8ac5f2b",
+      "state": "4df81865d4a738a24f3ab5c10b6cb3aeed8101273de6833c0386f972a411bf2c",
       "pixels": [
-        "a25fb00fa5d3b704c6ab28da0027683bc14953f493e5d23ac58d114a00978d6f",
-        "932d6ccc5fe7dfd9f8ff4366996661bb48c5ca8346e852d349c408a73ae2bf87",
-        "4119fc1ae5279ff94fe9d3fb4b9be18696d48df18464f3e93a3d3b0aa82a0634"
+        "4381fadb879f1100c9519a18f5fa3b3ceb8677e73e30e8867075e06ec163ea73",
+        "e111d503124178108de97886a3d14d9c6d78950fdc31144e165fea6896d06d42",
+        "1b9cea3edc97fe79c17326a41c9522e7ae8b2586b1b5fc3c3f89d24245483e38"
       ]
     },
     {
       "action": "listen",
       "heading": 2.5,
       "ticks": 100,
-      "state": "4e030e34e4d93a7ee5bc5e95a512083a42b1dfe5dc52fbb6625153eca8cdb108",
+      "state": "c1ec8a0fe61a25c021f329226ef9e4cb4c340cd5775a8713cac67e2e1f1a1b23",
       "pixels": [
-        "f2b80f1f3560091264d9eb11ee493256af3321541dd525952ae8f0f770cbf43f",
-        "be5f2547fbc9dfeddbee2eb99d4e63fd462b20143122887ea7bd794570dc6193",
-        "722b065ea2c2d4e9bdc071d43b89188bb9d8b8aed21d405d032a4e140d7f91e2"
+        "36a78889ee6391184456ee2e6a12b838af4aaf89f5b9f686abd9985028804fc0",
+        "ffb7ff3a6b99566d43bcfdc22cbfb08faafc8ca28ce1f556e5a66633ac37f2b1",
+        "bc1f9983cbff8fff703db800a23069e9ac6941dc5c3e15b3a8f1d511de26a79c"
       ]
     },
     {
       "action": "walk",
       "heading": 0,
       "ticks": 125,
-      "state": "084653f07961102d63c881f6ad7dc1d3da3894f0844c6ed850ec81433903f15a",
+      "state": "c873b2a81f81c32cc7f160a65a0fcd06e2c4c78165ab49c7d3148079022945fe",
       "pixels": [
-        "fe48e631950cf54a9301a055b7da193509e7f69a35444a1534cc69e81bcca76b",
-        "341ca0dd0934445671277bf78b8703c5b3ca2b03d58c7aacd5509575aeb18339",
-        "e95794e1bd48c17400cba8d12ac126fcc995559127b6624401dec20e79ab6984"
+        "39e74ec96dc42c458a0981390ee35d790fc21c934d2e4a22bd8fb330a10a70fa",
+        "c3873542773b6f8cdbea42acc94a285b95cc765287b5743d5d47b4f95708e679",
+        "71c4c0aab461ef760c3ecb009a809e32da15a10637c8d97989ec287c422eecd1"
       ]
     },
     {
       "action": "scurry",
       "heading": 0,
       "ticks": 50,
-      "state": "89240d88476a6853cee0896d074c00deebdda80ea4ac171824d1cab547abe92a",
+      "state": "adf520832c4b8db6f6b8d9ded2a9fa9c1597963e8c5c246072db9667d6bf5b24",
       "pixels": [
-        "2c03f4ad3040881657d3df785be8167002ec039c0cafba8d6c4bbf5573602371",
-        "1c845c558193bdf656d584001ce3f2fbc74c5aa68a33b0d8484575a79b01a1ad",
-        "3c78f8b28e81ad3ac959ba6ab7f0b8d3eba397ea7198bebcfdd53279e0836d43"
+        "74dac2df94aa086df6a1f0b720335a8fb505fbab0bf0047667747c4587672b25",
+        "e1e44e1951f7b7bd508a4842f2151e60d769deca03a6c50a3c70c52504ef131d",
+        "b19cd459a7c6532a02fb4f04dd8595d6d3485a05c85f2521686f6af5bc0d3997"
       ]
     },
     {
       "action": "idle",
       "heading": 0,
       "ticks": 55,
-      "state": "e3fbdaa14c9b9f39c5d2ed410218d04c368d2ae65cb90e33cbb8131744d8cfb8",
+      "state": "5affb09c82156af3680257520761ae6a94837f09a2b21cc0316d9645f3c71c73",
       "pixels": [
-        "e64a7c233af7961493fe3ae164da10373551a57385bac62c5699b9e66703b611",
-        "709b1efece833f4fd192510f9efa88472ea19c6c0259394482a66005c8f85319",
-        "26ec1355f68c0c55f93bee08ee27f490272ed6fede6b243b0142c12589cb6350"
+        "1665b3da868972844777d992a686e21ab6f3f265cfdd56735882ca87467327e0",
+        "383364e2a6d3d7b2b406d59c2e5a4d077b24479dc9c27efa7e6c1aef5938116b",
+        "aa5deaa265bd3804165f73b496e170067c25c5c1deb34e58299774e1423e10a1"
       ]
     }
-  ]
+  ],
+  "previousRevision": "878c9f6"
 }
