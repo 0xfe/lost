@@ -5,7 +5,7 @@ All three visual materials were created for this project with the built-in `imag
 | Retained source | Purpose |
 | --- | --- |
 | `assets/source/rat-original.png` | Initial 4-column, 8-row directional rat sheet |
-| `assets/source/rat.png` | Edited true-alpha rat cutouts used by the baker |
+| `assets/source/rat.png` | Edited true-alpha cutouts retained as reference; also supplies the live fur material |
 | `assets/source/cobbles.png` | Generated wet medieval setts, projected onto the ground |
 | `assets/source/masonry.png` | Generated weathered limestone, projected onto castle walls |
 
@@ -15,10 +15,12 @@ The image generator painted brown RGB under the initial sheet. The follow-up edi
 
 The apparent eight-row layout is **not an exact equal-height grid**. Reviewed vertical band boundaries in source pixels are `0, 196, 367, 550, 727, 890, 1080, 1280, 1536`. Each row's four poses share one union-bounds vertical offset into a 256 × 208 registration canvas. They are then sampled with nearest-neighbor at 192 × 144. Never trim each pose independently. Rump and nose landmarks are recorded per direction in the baker.
 
-The source heading order is screen-space right, lower-right, down, lower-left, left, upper-left, up, upper-right. `directionRow()` maps a world heading through the actual isometric projection before selecting a row. World-angle quantization alone would choose the wrong art.
+The archived source heading order is screen-space right, lower-right, down, lower-left, left, upper-left, up, upper-right. `directionRow()` retains the correct world-to-screen mapping for these references. The live rat does not select a directional frame: it is continuously posed geometry authored in `src/rat/model.ts`.
 
-`scripts/prepare-assets.mjs` packs all body frames plus 256-pixel stone textures, procedural light/shadow masks and a white utility texel into one 1536 × 896 RGBA texture. Transparent source margins protect the frames. No filtering or mipmaps are used. The tail is code-authored geometry with pink/grey segment shading; it is deliberately absent from the generated body art and does not need its own bitmap sheet.
+`scripts/prepare-assets.mjs` retains the 32 reference frames plus 256-pixel stone textures, procedural light/shadow masks and a white utility texel in one 1536 × 896 RGBA texture. It reserves a 384 × 288 region at `(800, 600)` for the live rat. All three renderers apply the same RGBA texture patch there before drawing. No filtering or mipmaps are used. The articulated tail is code-authored 3D geometry and does not need its own bitmap sheet.
 
-The source art is pixel-styled, with downsampling making the delivered pixel structure explicit. The tool sometimes varies fur pattern, body size and feet between frames. The directional contact sheet is a required review artifact. For consistent close-up film animation, follow the offline rig proposal in [STRATEGY.md](STRATEGY.md).
+The live material uses a 65 × 48 fur crop at `(80, 87)` from `rat.png`, sampled to 32 × 32 grayscale. Its luminance is normalized and contrast reduced to avoid carrying the source image's baked lighting onto the model. Stable model-space UVs attach that variation to the moving anatomy. Source images remain unchanged; geometry, joint placement and animation are authored, not image-to-3D reconstruction.
+
+The source art is pixel-styled. Its inconsistent body proportions and paw positions motivated the live rig described in [STRATEGY.md](STRATEGY.md). `rat-directions.png` now reviews continuous live poses; the original sheet and its registered atlas regions remain available for comparison. The new silhouette and material are still an animation-study approximation, not final character art.
 
 Renderer and server code was reused from the user's Jungle repository, revision `50803498ad97b244042fb026ead4fc6fc47f2207`. No third-party animal model or animation is included. Original-work distribution terms have not been selected.

@@ -1,4 +1,5 @@
 import type { Color, Frame, PixelImage, Region, Renderer } from './render';
+import { patchAtlas } from './render';
 /** Canvas fallback uses the same atlas and commands, with nearest-neighbor sampling. */
 export class CanvasRenderer implements Renderer {
   readonly name = 'Canvas 2D';
@@ -35,6 +36,15 @@ export class CanvasRenderer implements Renderer {
   }
   render(frame: Frame): void {
     const ctx = this.ctx;
+    patchAtlas(this.atlas,frame.patches);
+    for(const patch of frame.patches??[]){
+      this.sheet.getContext('2d')!.putImageData(new ImageData(new Uint8ClampedArray(patch.data),patch.width,patch.height),patch.x,patch.y);
+      // Tinted cached rectangles intersecting a live patch must not retain old pixels.
+      for(const [key,sheet] of this.tinted){
+        const [x,y,w,h]=key.split(':')[0]!.split(',').map(Number);
+        if(x!<patch.x+patch.width&&x!+w!>patch.x&&y!<patch.y+patch.height&&y!+h!>patch.y){this.tintBytes-=sheet.width*sheet.height*4+256;this.tinted.delete(key);}
+      }
+    }
     if (this.canvas.width !== frame.width || this.canvas.height !== frame.height) {
       this.canvas.width = frame.width; this.canvas.height = frame.height;
     }

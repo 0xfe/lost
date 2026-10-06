@@ -7,7 +7,15 @@ export interface DrawCommand {
   x: number; y: number; width: number; height: number;
   corners?: QuadCorners; uvCorners?:QuadCorners; region?: Region; color: Color; flip?: boolean;
 }
-export interface Frame { width: number; height: number; clear: Color; commands: DrawCommand[] }
+export interface TexturePatch extends PixelImage { x:number; y:number }
+export interface Frame { width: number; height: number; clear: Color; commands: DrawCommand[]; patches?:TexturePatch[] }
+/** Apply live pixel sprites to the same bounded atlas used by every renderer. */
+export function patchAtlas(atlas:PixelImage,patches:readonly TexturePatch[]=[]):void{
+  for(const patch of patches){
+    if(patch.x<0||patch.y<0||patch.x+patch.width>atlas.width||patch.y+patch.height>atlas.height)throw Error('Texture patch exceeds atlas');
+    for(let y=0;y<patch.height;y++)atlas.data.set(patch.data.subarray(y*patch.width*4,(y+1)*patch.width*4),((patch.y+y)*atlas.width+patch.x)*4);
+  }
+}
 export interface Renderer { readonly name: string; readonly auxiliaryBytes?: number; render(frame: Frame): void; dispose(): void }
 export function color(hex: string, alpha = 1): Color {
   const n = Number.parseInt(hex.replace('#', ''), 16);
@@ -27,6 +35,7 @@ export class MemoryRenderer implements Renderer {
   pixels: PixelImage = { width: 0, height: 0, data: new Uint8Array() };
   constructor(readonly atlas: PixelImage) {}
   render(frame: Frame): void {
+    patchAtlas(this.atlas,frame.patches);
     const { width, height } = frame;
     if (this.pixels.width !== width || this.pixels.height !== height)
       this.pixels = { width, height, data: new Uint8Array(width * height * 4) };

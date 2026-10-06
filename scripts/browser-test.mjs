@@ -15,6 +15,17 @@ try{
   await page.goto(`http://127.0.0.1:${port}/?test=1&paused&time=6`);await page.waitForFunction(()=>window.__lost?.frames>2);
   assert.equal(await page.evaluate(()=>window.__lost.renderer),'WebGL');
   await page.screenshot({path:'artifacts/browser-webgl.png'});
+  await page.getByRole('button',{name:'Motion lab',exact:true}).click();
+  assert.equal(await page.locator('#lab').isVisible(),true);
+  await page.locator('#time-scale').selectOption('0.25');
+  await page.getByRole('button',{name:'Walk 1',exact:true}).click();
+  await page.evaluate(()=>window.__lost.advance(1));
+  const beforeStep=await page.evaluate(()=>window.__lost.rat.current.time);
+  await page.getByRole('button',{name:'Step 1/60 s',exact:true}).click();
+  assert.ok(Math.abs(await page.evaluate(()=>window.__lost.rat.current.time)-beforeStep-1/60)<1e-8);
+  await page.screenshot({path:'artifacts/browser-motion-lab.png'});
+  await page.locator('#time-scale').selectOption('1');
+  await page.getByRole('button',{name:'Motion lab',exact:true}).click();
   await page.getByRole('button',{name:'Sniff 3',exact:true}).click();assert.equal(await page.evaluate(()=>window.__lost.rat.requested),'sniff');
   await page.getByRole('button',{name:'Groom 5',exact:true}).click();assert.equal(await page.evaluate(()=>window.__lost.rat.requested),'groom');
   await page.getByRole('button',{name:'Face northwest',exact:true}).click();

@@ -2,7 +2,7 @@
 
 **A little rat. A long night.** A close-up isometric pixel-art study for a short film about finding a way home through a medieval city.
 
-This first demo explores rendering, atmosphere, camera-relative movement and a rat's performance. It is not a complete movie. Generated directional rat art moves over generated wet cobbles and castle masonry, with candlelight, rain and a separately articulated tail.
+This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 002 replaces four-frame sprite playback with a continuously articulated 3D rat, rasterized into pixel art. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Generated cobbles and castle masonry provide the street, and the original generated rat supplies an appearance reference and fur material. This is a motion study, not a complete movie.
 
 ## Run
 
@@ -22,8 +22,8 @@ The browser has **zero runtime dependencies**. TypeScript, esbuild, Sharp, tsx a
 | Control | Behavior |
 | --- | --- |
 | Explore | Alternates cautious walking with sniffing and listening; click again to rest |
-| Walk / `1` | Continue in the current facing direction |
-| Scurry / `2` | Faster travel and gait playback |
+| Walk / `1` | Four-beat walk, with long planted stance and low paw recovery |
+| Scurry / `2` | Asymmetric gallop, with fore/hind support groups, suspension and spine flexion |
 | Sniff / `3` | Stop and investigate, with head and whisker motion |
 | Listen / `4` | Stop, hold alert, gently move the head |
 | Groom / `5` | A small head/paw wash gesture; most readable in front/side views |
@@ -36,7 +36,11 @@ The browser has **zero runtime dependencies**. TypeScript, esbuild, Sharp, tsx a
 | Rain | Toggle rain streaks; the street stays wet |
 | Closer | Adjust the close-up framing |
 | `H` / minus button | Hide the interface; use `H` or Show controls to restore |
-| Reset | Restore the opening state and default controls |
+| Motion lab | Open contact indicators, playback speed and joint overlays |
+| Playback | Real time, half speed or quarter speed; simulation still uses fixed steps |
+| Step 1/60 s | Pause and advance one simulation step |
+| Show joints & contacts | Blue limb chains; green planted paws; amber airborne paws |
+| Reset | Restore the opening scene; retain Motion lab review settings |
 | Field notes | About the study and keyboard reference |
 | Fullscreen icon | Toggle browser fullscreen where supported |
 
@@ -49,11 +53,14 @@ WebGL is the default. `?renderer=canvas` explicitly selects the Canvas compariso
 ```sh
 npm run check          # assets, strict TypeScript, build, Node tests, memory-rendered PNGs
 npm run test:browser   # actual Chrome: WebGL/Canvas, desktop/mobile, input and controls
+npm run motion         # animated gait comparisons and contact/performance measurements
 ```
 
 Browser tests use installed Google Chrome (`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` on macOS, `/usr/bin/google-chrome` on Linux). Override with `CHROME_PATH=/path/to/chrome`. Playwright Core does not download a browser. Tests start and stop their own local server; no separate preview is required.
 
-Inspect `artifacts/browser-webgl.png`, `browser-mobile.png`, `browser-home.png`, `rat-directions.png`, `lost-memory.png`, `home-memory.png` and `budget.json`. `npm run snapshot` recreates the software renders. The atlas is **1536 × 896, 5.25 MiB decoded**, below the 16 MiB project limit.
+Open **http://localhost:4173/?lab** for live motion inspection. `artifacts/motion-study.html` plays walking and scurrying side by side after `npm run motion`; each two-second loop includes contact overlays and a scrolling diagnostic floor. `motion-metrics.json` records stance drift, support counts and CPU raster timings. These loops reset at their boundaries; they are inspection clips, not seamless animation assets.
+
+Inspect `artifacts/browser-motion-lab.png`, `browser-webgl.png`, `browser-mobile.png`, `browser-home.png`, `rat-directions.png`, `lost-memory.png`, `home-memory.png` and `budget.json`. `npm run snapshot` recreates the software renders. The atlas remains **1536 × 896, 5.25 MiB decoded**, below the 16 MiB atlas limit. A reserved **384 × 288** region receives the live rat each frame. WebGL updates that region with `texSubImage2D`; no additional texture or runtime library is needed.
 
 ## Build and deploy
 
@@ -72,10 +79,10 @@ The uploader's flags follow the [official gcloud storage reference](https://docs
 
 ## Design
 
-- [Strategy, rat-motion research and the next animation pass](docs/STRATEGY.md)
+- [Strategy, rat-motion research, implementation and limits](docs/STRATEGY.md)
 - [Assets, exact prompts, crop registration and provenance](docs/ASSETS.md)
 - [Contributor guidance](AGENTS.md)
 
-`src/simulation.ts` owns behavior, the motor and tail; `src/scene.ts` composes DOM-free draw commands; `src/main.ts` owns browser lifecycle and controls. The software, Canvas and WebGL renderers share the draw-command contract. The camera follows the rat exactly; the street remains world-anchored and bounded in memory.
+`src/simulation.ts` owns behavior, the motor and tail. `src/rat/` owns contact planning, limb solving, the authored mesh and its small software rasterizer. `src/scene.ts` composes DOM-free draw commands; `src/main.ts` owns browser lifecycle and controls. Software, Canvas and WebGL renderers share the draw-command and texture-patch contract. The camera follows the rat exactly; the street remains world-anchored and bounded in memory.
 
 The renderer, math, quad, batch and local-server foundations were reused from [0xfe/jungle](https://github.com/0xfe/jungle), at local revision `50803498ad97b244042fb026ead4fc6fc47f2207`, as requested. Rat behavior, scene, interface and generated art are new. No license has been selected for the original work.

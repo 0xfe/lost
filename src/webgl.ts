@@ -1,5 +1,6 @@
 import type { Frame, PixelImage, Renderer } from './render';
 import { writeQuads } from './batch';
+import { patchAtlas } from './render';
 
 /** One atlas and one interleaved triangle batch; no scene or jungle knowledge. */
 export class WebGLRenderer implements Renderer {
@@ -52,6 +53,9 @@ export class WebGLRenderer implements Renderer {
   render(frame: Frame): void {
     const gl = this.gl;
     if (gl.isContextLost()) return;
+    patchAtlas(this.atlas,frame.patches);
+    gl.bindTexture(gl.TEXTURE_2D,this.texture);
+    for(const patch of frame.patches??[])gl.texSubImage2D(gl.TEXTURE_2D,0,patch.x,patch.y,patch.width,patch.height,gl.RGBA,gl.UNSIGNED_BYTE,patch.data);
     if (this.canvas.width !== frame.width || this.canvas.height !== frame.height) {
       this.canvas.width = frame.width; this.canvas.height = frame.height;
     }

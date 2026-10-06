@@ -55,11 +55,17 @@ const roots=[[48,134],[64,278],[130,403],[200,610],[216,837],[165,1045],[129,125
 const noses=[[239,122],[210,332],[128,530],[48,676],[34,819],[69,927],[130,1113],[205,1320]];
 const points=rows=>rows.map(([x,y],row)=>({x:x*.75,y:(y+offsets[row])*144/208}));
 const anchors=Array.from({length:8},()=>({x:96,y:184*144/208}));
-const atlas={width,height,floor,wall,glow,shadow,rat,anchors,roots:points(roots),noses:points(noses)};
+// Retained generated fur becomes a stable model-space material; old frames remain for comparison.
+const furPixels=await sharp('assets/source/rat.png').extract({left:80,top:87,width:65,height:48}).resize(32,32,{kernel:'nearest'}).removeAlpha().raw().toBuffer();
+const luminance=Array.from({length:1024},(_,i)=>(furPixels[i*3]*.3+furPixels[i*3+1]*.59+furPixels[i*3+2]*.11));
+const mean=luminance.reduce((a,b)=>a+b,0)/luminance.length;
+// Remove the painted source's broad lighting contrast; the live mesh supplies its own light.
+const fur=luminance.map(v=>Math.round(Math.max(.84,Math.min(1.16,1+(v/mean-1)*.40))*100)/100);
+const atlas={width,height,floor,wall,glow,shadow,rat,anchors,roots:points(roots),noses:points(noses),liveRat:{x:800,y:600,width:384,height:288},fur};
 await sharp(data,{raw:{width,height,channels:4}}).png().toFile('public/assets/atlas.png');
 await writeFile('public/assets/atlas.json',JSON.stringify(atlas));
 const sources={};
 for(const name of ['rat-original.png','rat.png','cobbles.png','masonry.png'])sources[name]=createHash('sha256').update(await readFile(`assets/source/${name}`)).digest('hex');
 await writeFile('assets/provenance.json',JSON.stringify({generator:'image_gen.imagegen',date:'2026-10-06',sources,
   notes:'Original generated artwork. rat.png is the transparency edit of rat-original.png. Nearest-neighbor preparation; fixed row anchors. Tail, light masks and geometry are authored in code.'},null,2)+'\n');
-console.log(`Atlas ${width} × ${height}: ${(data.length/1048576).toFixed(2)} MiB decoded, 32 generated rat frames.`);
+console.log(`Atlas ${width} × ${height}: ${(data.length/1048576).toFixed(2)} MiB decoded; live rat region + 32 retained reference poses.`);

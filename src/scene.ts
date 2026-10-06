@@ -1,10 +1,12 @@
 import { hash, lerp, type Vec2 } from './math';
 import { quadBounds, type QuadCorners } from './quad';
 import { color, WHITE, type Color, type DrawCommand, type Frame, type Region } from './render';
-import { directionRow, TAU, type Pose } from './simulation';
+import type { Pose } from './simulation';
+import { ratModel } from './rat/model';
+import { rasterRat, RAT_CAMERA } from './rat/raster';
 import type { Atlas } from './assets';
 
-export interface View { width: number; height: number; zoom: number; rain: boolean }
+export interface View { width: number; height: number; zoom: number; rain: boolean; debug?:boolean; study?:boolean }
 /** World surfaces and pixel sprites share a single painter-ordered atlas batch. */
 export function compose(p: Pose, atlas: Atlas, view: View): Frame {
   const { width, height, zoom } = view, commands: DrawCommand[] = [];
@@ -36,7 +38,8 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
   const radius = Math.ceil((width + height * 2) / scale / 3) + 2;
   const base = Math.floor(p.x / 3) * 3;
   for (let x = base - radius * 3; x <= base + radius * 3; x += 3) {
-    for (let y = -9; y < 12; y += 3) {
+    const baseY=Math.floor(p.y/3)*3;
+    for (let y = baseY-9; y < baseY+12; y += 3) {
       surface('paving',x,y,3,3,[lerp(145,186,p.mood),lerp(159,177,p.mood),lerp(181,160,p.mood),255],atlas.floor);
     }
   }
@@ -48,7 +51,7 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
     }
   }
   // Lower portions of the castle wall; cropped by the close camera.
-  for (let x = base - radius * 3; x <= base + radius * 3; x += 3) {
+  if(!view.study)for (let x = base - radius * 3; x <= base + radius * 3; x += 3) {
     const y = -2.85;
     quad('wall', [project(x,y,3.2),project(x+3,y,3.2),project(x,y),project(x+3,y)],
       [lerp(118,160,p.mood),lerp(130,148,p.mood),lerp(151,130,p.mood),255],atlas.wall);
@@ -61,7 +64,7 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
     }
   }
   // Candle-lit wall sconces, luminous pools, and reflected amber in wet setts.
-  for (let i = Math.floor(p.x / 4.5) - radius; i <= Math.floor(p.x / 4.5) + radius; i++) {
+  if(!view.study)for (let i = Math.floor(p.x / 4.5) - radius; i <= Math.floor(p.x / 4.5) + radius; i++) {
     const x = i * 4.5 + 1.2, y = -2.68, flame = project(x,y,1.15), ground = project(x,y+.65);
     const flicker = .94 + Math.sin(p.time * 9 + i * 3) * .035 + Math.sin(p.time * 17+i) * .02;
     rect('lamp-pool',ground.x-scale*1.65,ground.y-scale*.72,scale*3.3,scale*1.44,[255,170,67,80*flicker],atlas.glow);
@@ -78,62 +81,33 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
     }
   }
 
-  // Rat contact shadow: separate from the directional body and tail.
-  rect('rat-shadow',origin.x-55*zoom,origin.y-18*zoom,110*zoom,36*zoom,[0,0,0,160],atlas.shadow);
-  const drawTail = () => {
-    const root=project(p.tail[0]!.x,p.tail[0]!.y,.04), landmark=atlas.roots[row]!;
-    const offset={x:rx+landmark.x*ratScale-root.x,y:ry+landmark.y*ratScale-root.y};
-    for (let i=p.tail.length-1;i>0;i--) {
-      const a=project(p.tail[i]!.x,p.tail[i]!.y,.025), b=project(p.tail[i-1]!.x,p.tail[i-1]!.y,.04);
-      a.x+=offset.x; a.y+=offset.y; b.x+=offset.x; b.y+=offset.y;
-      const thickness=(.8+(1-i/p.tail.length)*4)*zoom;
-      line('tail-outline',a,b,thickness+1.4*zoom,color('#302a2b'));
-      line('tail',a,b,thickness,[138,105,101,255]);
-      line('tail-ridge',{x:a.x,y:a.y-.7*zoom},{x:b.x,y:b.y-.7*zoom},Math.max(.7,thickness*.28),[183,140,127,210]);
+  const rig=ratModel(p);
+  const live=rasterRat(p,atlas.fur,rig);
+  // The same projection/scale is used for street points, locked feet, and model vertices.
+  const spriteScale=scale/RAT_CAMERA.scale;
+  rect('rat-shadow',origin.x-65*zoom,origin.y-24*zoom,130*zoom,48*zoom,[0,0,0,125],atlas.shadow);
+  for(const foot of p.feet){
+    const at=project(foot.x,foot.y);
+    rect('paw-shadow',at.x-5*zoom,at.y-2*zoom,10*zoom,4*zoom,[0,0,0,foot.contact?140:35],atlas.shadow);
+  }
+  rect('rat-body',origin.x-RAT_CAMERA.x*spriteScale,origin.y-RAT_CAMERA.y*spriteScale,
+    live.width*spriteScale,live.height*spriteScale,WHITE,atlas.liveRat);
+  if(view.debug){
+    for(let i=0;i<4;i++){
+      const foot=p.feet[i]!,at=project(foot.x,foot.y),raised=project(foot.x,foot.y,foot.z);
+      const tint:Color=foot.contact?[120,230,160,255]:[244,183,85,255];
+      line('contact-x',{x:at.x-4,y:at.y},{x:at.x+4,y:at.y},1.5,tint);
+      line('contact-y',{x:at.x,y:at.y-3},{x:at.x,y:at.y+3},1.5,tint);
+      line('paw-height',at,raised,1,tint);
+      const chain=rig.joints[i]!;
+      const atJoint=(v:readonly number[])=>project(p.x+v[0]!,p.y+v[1]!,v[2]!);
+      line('rig-upper',atJoint(chain.hip),atJoint(chain.knee),1,[137,196,223,170]);
+      line('rig-lower',atJoint(chain.knee),atJoint(chain.ankle),1,[137,196,223,170]);
     }
-  };
-  const row=directionRow(p.heading), moving=p.action==='walk'||p.action==='scurry';
-  const frame=moving?Math.floor(p.stride*4)%4:0;
-  const region=atlas.rat[row]![frame]!, anchor=atlas.anchors[row]!;
-  const breath=Math.sin(p.time*3.6)*.35;
-  const sniff=p.action==='sniff'?Math.sin(p.time*14)*.65:0;
-  const groom=p.action==='groom'?Math.sin(p.time*10)*1.1:0;
-  const listen=p.action==='listen'?Math.sin(p.time*2.2)*1.8:0;
-  const bob=moving?Math.sin(p.stride*TAU*2)*.9:0;
-  const ratScale=zoom*.73;
-  const rx=origin.x-anchor.x*ratScale, ry=origin.y-anchor.y*ratScale-bob*zoom;
-  const rw=region.width*ratScale, rh=region.height*ratScale;
-  const tailInFront=row>=5&&row<=7;
-  if(!tailInFront)drawTail();
-  // Registered sprite mesh: head movement fades through shoulders; feet stay grounded.
-  const deform=(u:number,v:number):Vec2=>{
-    const dx=u-.5,dy=v-.5,angle=row*Math.PI/4;
-    const head=Math.max(0,Math.min(1,(dx*Math.cos(angle)+dy*Math.sin(angle)) * 3+.3));
-    const lift=(sniff+groom*1.6+listen*.4)*head;
-    return {x:rx+u*rw+head*listen*zoom,y:ry+v*rh+(lift+breath*(1-v))*zoom};
-  };
-  for(let v=0;v<8;v++)for(let u=0;u<8;u++){
-    const cell={x:region.x+u*region.width/8,y:region.y+v*region.height/8,width:region.width/8,height:region.height/8};
-    quad('rat-body',[deform(u/8,v/8),deform((u+1)/8,v/8),deform(u/8,(v+1)/8),deform((u+1)/8,(v+1)/8)],
-      [lerp(219,245,p.mood),lerp(218,232,p.mood),lerp(221,209,p.mood),255],cell);
-  }
-  if(tailInFront)drawTail();
-  // Fine whisker sweeps have independent timing from the stride.
-  const nosePoint=atlas.noses[row]!;
-  const nose=deform(nosePoint.x/region.width,nosePoint.y/region.height);
-  if(row<5)for(const side of [-1,1])for(let j=0;j<3;j++){
-    const a=p.heading+side*(.85+j*.26+Math.sin(p.time*(p.action==='sniff'?18:7)+side*.5)*.08);
-    const end={x:nose.x+(Math.cos(a)-Math.sin(a))*.16*scale,y:nose.y+(Math.cos(a)+Math.sin(a))*.08*scale};
-    line('whisker',nose,end,.65*zoom,[181,174,155,110]);
-  }
-  if(p.action==='groom'&&row<5){
-    for(const side of [-1,1])line('groom-paw',
-      {x:nose.x+side*8*zoom,y:nose.y+8*zoom},
-      {x:nose.x+side*3*zoom,y:nose.y+(2+groom*2)*zoom},2.5*zoom,[174,130,119,240]);
   }
 
   // A low foreground gutter gives the street a frame without hiding the character.
-  for(let x=base-radius*3;x<=base+radius*3;x+=3){
+  if(!view.study)for(let x=base-radius*3;x<=base+radius*3;x+=3){
     surface('gutter',x,3.15,3,.23,[58,67,73,255],atlas.wall,.09);
     line('gutter-edge',project(x,3.15,.09),project(x+3,3.15,.09),2*zoom,[128,135,137,130]);
   }
@@ -142,5 +116,5 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
     const y=(hash(i,2,91)*height+p.time*(180+hash(i,3,91)*90))%(height+40)-20;
     line('rain',{x,y},{x:x-3,y:y+9},.65,[158,179,188,65*(1-p.mood*.65)]);
   }
-  return {width,height,clear:color('#111c24'),commands};
+  return {width,height,clear:color('#111c24'),commands,patches:[{...live,x:atlas.liveRat.x,y:atlas.liveRat.y}]};
 }

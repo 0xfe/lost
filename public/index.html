@@ -10,7 +10,15 @@
   <canvas id="scene" aria-label="A brown rat exploring a candlelit medieval stone street"></canvas>
   <div class="vignette" aria-hidden="true"></div>
   <header class="title-block interface"><p class="eyebrow">A LITTLE RAT. A LONG NIGHT.</p><h1>lost<span>.</span></h1><p class="subtitle">Somewhere, there is a way home.</p></header>
-  <nav class="top-tools interface" aria-label="View tools"><span class="edition">STUDY 001 <span> / </span> THE STREET</span><button id="notes" aria-label="Open field notes">Field notes <span>↗</span></button><button id="fullscreen" aria-label="Toggle fullscreen">⛶</button></nav>
+  <nav class="top-tools interface" aria-label="View tools"><span class="edition">STUDY 002 <span> / </span> FINDING HIS FEET</span><button id="motion-lab" aria-pressed="false">Motion lab</button><button id="notes" aria-label="Open field notes">Field notes <span>↗</span></button><button id="fullscreen" aria-label="Toggle fullscreen">⛶</button></nav>
+  <aside id="lab" class="interface" aria-label="Motion diagnostics" hidden>
+    <p class="eyebrow">MOTION LAB</p><p id="gait-readout">Four-beat walk</p>
+    <div class="foot-status"><span id="foot-0">LF</span><span id="foot-1">RF</span><span id="foot-2">LH</span><span id="foot-3">RH</span></div>
+    <p class="lab-key">Green: planted · Amber: swinging</p>
+    <label for="time-scale">Playback <select id="time-scale"><option value="1">Real time</option><option value="0.5">½ speed</option><option value="0.25">¼ speed</option></select></label>
+    <button id="step">Step 1/60 s</button><label class="rig-toggle"><input id="show-rig" type="checkbox" checked> Show joints & contacts</label>
+    <output id="motion-readout">0.00 body lengths / s</output>
+  </aside>
   <div id="loading" role="status">Lighting the street<span>…</span></div>
   <div id="fatal" role="alert" hidden></div>
   <button id="show-controls" hidden>Show controls <kbd>H</kbd></button>
@@ -31,7 +39,7 @@
     </div>
     <footer><span>MEDIEVAL QUARTER <span class="separator">·</span> AFTER MIDNIGHT</span><span><kbd>Space</kbd> pause <span class="separator">/</span> <kbd>H</kbd> hide interface</span><span id="renderer-label">WEBGL</span></footer>
   </aside>
-  <dialog id="notes-dialog"><button id="close-notes" aria-label="Close field notes">×</button><p class="eyebrow">FIELD NOTES / 001</p><h2>A small life,<br>a very big night.</h2><p>A rendering and movement study for a short film about a lost rat. The camera stays with him; the city passes beneath his feet.</p><p>Let him explore, or use the arrow keys to guide him. Try a cautious sniff, a pause to listen, then a quick scurry. The compass changes his facing. Move the light toward “Home” to try a warmer ending.</p><p class="note-detail">Generated directional pixel art, an independently articulated tail, and a deterministic 60 Hz simulation. Eight views and four walking poses are an initial motion study; the film’s final performance will need a more detailed rig.</p><div class="note-keys"><kbd>1–5</kbd> actions <kbd>0</kbd> rest <kbd>Space</kbd> pause <kbd>H</kbd> interface</div><button id="back-street" class="primary">Back to the street</button></dialog>
+  <dialog id="notes-dialog"><button id="close-notes" aria-label="Close field notes">×</button><p class="eyebrow">FIELD NOTES / 002</p><h2>A small life,<br>a very big night.</h2><p>A rendering and movement study for a short film about a lost rat. The camera stays with him; the city passes beneath his feet.</p><p>Let him explore, or use the arrow keys to guide him. Try a cautious sniff, a pause to listen, then a quick scurry. The compass changes his facing. Move the light toward “Home” to try a warmer ending.</p><p class="note-detail">A continuously articulated rat: planted paws, jointed limbs, a flexible spine, searching head, twitching ears and a trailing tail. Walking uses staggered steps; scurrying uses an asymmetric gallop. Open Motion lab to slow time, inspect contacts, or advance a single simulation step.</p><div class="note-keys"><kbd>1–5</kbd> actions <kbd>0</kbd> rest <kbd>Space</kbd> pause <kbd>H</kbd> interface</div><button id="back-street" class="primary">Back to the street</button></dialog>
   <script type="module" src="./app.js"></script>
 </body>
 </html>

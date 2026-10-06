@@ -5,10 +5,11 @@ Lost is a close-up isometric pixel-art film study about a lost rat in a medieval
 - TypeScript, static deployment, no runtime dependencies. Build-only dependencies are acceptable. Keep normal builds offline after npm ci.
 - Keep simulation and scene composition DOM-free. Inject time; use fixed 60 Hz updates and interpolated presentation. Do not use Date.now or Math.random in world/simulation code.
 - src/math.ts, quad.ts, render.ts, batch.ts, webgl.ts and canvas.ts were reused from the user's Jungle project. Keep renderer code independent of rat behavior.
-- Locomotion follows heading. Turn before travel, accelerate smoothly, advance gait by actual distance, stop foot cycles when blocked. Tail motion is a separate attached chain, not a rigid extension of a billboard.
+- Locomotion follows heading. Turn before travel, accelerate smoothly and advance gait by actual distance. Planted paws are immutable world-space anchors; only airborne paws may retarget. Stops/blocking finish recovery steps. Turns must respect limb reach. Preserve bone lengths and distinct walk/gallop contact schedules.
+- src/rat/ contains the live authored 3D rig and bounded pixel rasterizer. Keep head, ears, spine, limbs and tail independently articulated. Tail motion is a separate attached chain. Do not replace contact planning with faster playback of a walking sheet.
 - Keep generated source art and exact prompts in assets/. Normal builds must never call image generation. Preserve directional frame registration and nearest-neighbor sampling. Review all headings and loop boundaries.
-- Keep rendering memory bounded. One shared atlas, maximum 16 MiB decoded. Never reorder transparent commands to improve batching.
+- Keep rendering memory bounded. One shared atlas, maximum 16 MiB decoded. The live rat updates a reserved 384 × 288 region; all renderers must consume the same texture patches. Never reorder transparent commands to improve batching.
 - Keep README and docs/STRATEGY.md honest about implemented behavior, approximations and future work. Document every control.
-- Run npm run check for changes to mechanics/art; npm run test:browser for renderer/input changes. Inspect artifacts and the actual browser. Software snapshots alone do not prove WebGL behavior.
+- Run npm run check for changes to mechanics/art; npm run test:browser for renderer/input changes; npm run motion for gait changes. Inspect contacts, transitions and silhouettes in Motion lab and the actual browser. Software snapshots alone do not prove WebGL behavior.
 - Use small readable modules, explicit units, light comments on public contracts and non-obvious logic. Add focused tests for actual behavior.
 - Do not publish, choose an original-work license, or push without user instructions.

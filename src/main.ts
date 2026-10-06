@@ -11,7 +11,7 @@ const $ = <T extends HTMLElement>(selector:string) => document.querySelector<T>(
 const canvas=$<HTMLCanvasElement>('#scene'), params=new URLSearchParams(location.search);
 let rat=new Rat(), renderer:Renderer, atlas:Atlas, pixels:PixelImage;
 let paused=params.has('paused')||matchMedia('(prefers-reduced-motion: reduce)').matches;
-let zoom=1.2,rain=true,frames=0;
+let zoom=1.2,rain=true,frames=0,lab=params.has('lab'),showRig=true,timeScale=1;
 const clock=new FixedClock(), keys=new Set<string>();
 const descriptions:Record<Action,string>={idle:'A moment, very still',walk:'One small step at a time',scurry:'A little courage',sniff:'Taking in the night',listen:'Something in the distance',groom:'A moment to himself'};
 const fail=(error:unknown)=>{const el=$('#fatal');el.hidden=false;el.textContent=`The street could not be drawn. ${error instanceof Error?error.message:String(error)} Reload to try again.`;$('#loading').hidden=true;console.error(error);};
@@ -29,8 +29,10 @@ async function initialize(){
   else renderer=new WebGLRenderer(canvas,pixels);
   $('#renderer-label').textContent=renderer.name.toUpperCase();
   for(let i=0;i<Math.min(120,Math.max(0,Number(params.get('time'))||0))*60;i++)rat.update(1/60);
+  const action=params.get('action');if(['walk','scurry','sniff','listen','groom','idle'].includes(action??''))rat.command(action as Action);
+  $('#lab').hidden=!lab;$('#motion-lab').setAttribute('aria-pressed',String(lab));
   $('#loading').hidden=true;sync();requestAnimationFrame(tick);
-  console.info('Lost • study 001',{renderer:renderer.name,atlasMiB:pixels.data.byteLength/1048576,headings:8,poses:32,step:clock.step});
+  console.info('Lost • study 002',{renderer:renderer.name,atlasMiB:pixels.data.byteLength/1048576,rat:'continuous procedural rig',step:clock.step});
   if(params.has('test'))Object.assign(window,{__lost:{get rat(){return rat;},get paused(){return paused;},get frames(){return frames;},get renderer(){return renderer.name;},
     advance(seconds:number){for(let i=0;i<Math.round(seconds*60);i++)rat.update(1/60);},
     frame(){return compose(rat.sample(1),atlas,{width:canvas.width,height:canvas.height,zoom,rain});}}});
@@ -41,7 +43,16 @@ function sync(){
   document.querySelectorAll<HTMLButtonElement>('[data-action]').forEach(b=>b.setAttribute('aria-pressed',String(!rat.explore&&rat.requested===b.dataset.action)));
   $('#pause').setAttribute('aria-pressed',String(paused));$('#pause').textContent=paused?'▷ Resume':'Ⅱ Pause';
   $('#activity').textContent=paused?'The night holds its breath':descriptions[rat.current.action];
+  if(lab){
+    $('#gait-readout').textContent=rat.current.speed<.02?'At rest':rat.current.gait==='walk'?'Four-beat walk':'Asymmetric gallop';
+    rat.current.feet.forEach((f,i)=>$(`#foot-${i}`).dataset.contact=String(f.contact));
+    $('#motion-readout').textContent=`${(rat.current.speed/1.5).toFixed(2)} body lengths / s`;
+  }
 }
+$('#motion-lab').onclick=()=>{lab=!lab;$('#lab').hidden=!lab;$('#motion-lab').setAttribute('aria-pressed',String(lab));sync();};
+$<HTMLSelectElement>('#time-scale').onchange=e=>{timeScale=Number((e.target as HTMLSelectElement).value);};
+$<HTMLInputElement>('#show-rig').onchange=e=>{showRig=(e.target as HTMLInputElement).checked;};
+$('#step').onclick=()=>{paused=true;clock.reset();rat.update(1/60);sync();};
 function act(action:Action){rat.command(action);sync();}
 $('#explore').onclick=()=>{rat.explore=!rat.explore;if(!rat.explore)rat.command('idle');sync();};
 document.querySelectorAll<HTMLButtonElement>('[data-action]').forEach(b=>b.onclick=()=>act(b.dataset.action as Action));
@@ -53,7 +64,7 @@ $<HTMLInputElement>('#mood').oninput=e=>{const v=Number((e.target as HTMLInputEl
 $<HTMLInputElement>('#zoom').oninput=e=>{zoom=Number((e.target as HTMLInputElement).value)/100;};
 $<HTMLInputElement>('#rain').onchange=e=>{rain=(e.target as HTMLInputElement).checked;};
 let hidden=false;
-function hide(){hidden=!hidden;document.querySelectorAll<HTMLElement>('.interface').forEach(el=>el.hidden=hidden);$('#show-controls').hidden=!hidden;}
+function hide(){hidden=!hidden;document.querySelectorAll<HTMLElement>('.interface').forEach(el=>el.hidden=hidden);$('#lab').hidden=hidden||!lab;$('#show-controls').hidden=!hidden;}
 $('#hide').onclick=hide;$('#show-controls').onclick=hide;
 const dialog=$<HTMLDialogElement>('#notes-dialog');
 $('#notes').onclick=()=>dialog.showModal();$('#close-notes').onclick=()=>dialog.close();$('#back-street').onclick=()=>dialog.close();
@@ -84,10 +95,10 @@ function tick(now:number){
   const dt=last?(now-last)/1000:0;last=now;
   if(!paused&&!document.hidden){
     if(keys.size){const x=Number(keys.has('ArrowRight'))-Number(keys.has('ArrowLeft')),y=Number(keys.has('ArrowDown'))-Number(keys.has('ArrowUp'));if(x||y){rat.steer(screenHeading(x,y));rat.command('walk');}}
-    clock.advance(dt,t=>rat.update(t));
+    clock.advance(dt*timeScale,t=>rat.update(t));
   }
   const resolution=Math.max(1.25,innerWidth/1100);
-  const frame=compose(rat.sample(paused?1:clock.alpha),atlas,{width:Math.round(innerWidth/resolution),height:Math.round(innerHeight/resolution),zoom,rain});
+  const frame=compose(rat.sample(paused?1:clock.alpha),atlas,{width:Math.round(innerWidth/resolution),height:Math.round(innerHeight/resolution),zoom,rain,debug:lab&&showRig});
   renderer.render(frame);frames++;
   if(frames%15===0)sync();
   requestAnimationFrame(tick);
