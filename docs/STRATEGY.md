@@ -4,7 +4,7 @@ For the detailed construction, animation, texturing and reusable component desig
 
 ## This pass
 
-The rat now has more space around him on phone and laptop layouts. Paving and masonry are larger relative to the animal, and tall freestanding street lamps replace wall sconces. The same world-space lamp fields shade the street and the rat; a posed-mesh projection supplies his flat-ground cast shadow.
+The rat now has more space around him on phone and laptop layouts. The [street art pass](street-design.md) replaces schematic lamps/grilles with researched sprites and adds scanned weathered paving, dirt, small rocks and rooted weeds. Paving and masonry are larger relative to the animal, and tall freestanding street lamps replace wall sconces. The same world-space lamp fields shade the street and the rat; a posed-mesh projection supplies his flat-ground cast shadow.
 
 Exploration is a seeded sequence of variable walking bouts, pauses, occasional scurries and scent detours. He maintains a route, notices a point to the side, approaches it, sniffs and returns. Performance tempo varies separately from footfall timing. Faster scurries add a little more body stretch and arch while preserving paw contacts. See [the exploration design](rat-design.md#exploration-and-irregular-timing) and [lighting details and limits](rat-design.md#street-scale-lighting-and-shadows).
 
@@ -65,7 +65,7 @@ Stay close to one small animal. Show worn paving, the feet of heavy walls and oc
 
 Ground points project as `(x − y, (x + y) / 2)`; height subtracts from screen Y. Floor tiles, wall segments, drains, upright lamps and puddles remain world-anchored. The normal scene constrains the actor to a corridor. Motion exports use an unbounded floor so a wall cannot interrupt gait inspection. Lamp falloff drives shared surface and model illumination, with one projected rat shadow. Reflections and rain remain artistic layers; there is no general world shadow map or physical light transport.
 
-The original implementation inspected Jungle at revision `50803498ad97b244042fb026ead4fc6fc47f2207` and reused its math, quad, render, batch, WebGL, Canvas and static-server foundations. We retain its useful separation of pure simulation, fixed 60 Hz updates, interpolated presentation, common rendering contract, bounded scene memory and offline asset preparation. The atlas remains 5.25 MiB decoded, within the 16 MiB atlas limit; this is not a total-process RAM limit.
+The original implementation inspected Jungle at revision `50803498ad97b244042fb026ead4fc6fc47f2207` and reused its math, quad, render, batch, WebGL, Canvas and static-server foundations. We retain its useful separation of pure simulation, fixed 60 Hz updates, interpolated presentation, common rendering contract, bounded scene memory and offline asset preparation. The atlas is now 9 MiB decoded, within the 16 MiB atlas limit; this is not a total-process RAM limit.
 
 ## Inspect and verify
 

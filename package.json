@@ -8,7 +8,7 @@
     "node": ">=22"
   },
   "scripts": {
-    "assets": "node scripts/prepare-assets.mjs",
+    "assets": "tsx scripts/prepare-assets.mjs",
     "typecheck": "tsc --noEmit",
     "build": "npm run assets && npm run typecheck && node scripts/build.mjs",
     "serve": "node scripts/serve.mjs",

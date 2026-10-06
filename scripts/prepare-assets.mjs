@@ -1,10 +1,11 @@
 import sharp from 'sharp';
+import { streetAssets } from './street-assets.mjs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 
 // All image processing is offline. Keep source cells registered, never trim poses independently.
 await mkdir('public/assets', { recursive: true });
-const width=1536, height=896, data=Buffer.alloc(width*height*4);
+const width=1536, height=1536, data=Buffer.alloc(width*height*4);
 if(data.length>16*1048576)throw Error('Atlas exceeds the 16 MiB decoded budget.');
 data.set([255,255,255,255],0); // untextured GL primitives sample this white pixel
 const put=async(input,x,y,w,h)=>{
@@ -40,7 +41,8 @@ for(let row=0;row<8;row++){
     rat[row].push({x,y,width:192,height:144});
   }
 }
-const floor=await put('assets/source/cobbles.png',2,600,256,256);
+const street=await streetAssets(put);
+const floor=street.floor;
 const wall=await put('assets/source/masonry.png',260,600,256,256);
 function radial(x,y,size,power){
   for(let j=0;j<size;j++)for(let i=0;i<size;i++){
@@ -61,7 +63,7 @@ const luminance=Array.from({length:1024},(_,i)=>(furPixels[i*3]*.3+furPixels[i*3
 const mean=luminance.reduce((a,b)=>a+b,0)/luminance.length;
 // Remove the painted source's broad lighting contrast; the live mesh supplies its own light.
 const fur=luminance.map(v=>Math.round(Math.max(.84,Math.min(1.16,1+(v/mean-1)*.40))*100)/100);
-const atlas={width,height,floor,wall,glow,shadow,rat,anchors,roots:points(roots),noses:points(noses),liveRat:{x:800,y:600,width:384,height:288},ratShadow:{x:1184,y:600,width:352,height:288},fur};
+const atlas={width,height,...street,floor,wall,glow,shadow,rat,anchors,roots:points(roots),noses:points(noses),liveRat:{x:800,y:600,width:384,height:288},ratShadow:{x:1184,y:600,width:352,height:288},fur};
 await sharp(data,{raw:{width,height,channels:4}}).png().toFile('public/assets/atlas.png');
 await writeFile('public/assets/atlas.json',JSON.stringify(atlas));
 const sources={};
@@ -69,3 +71,10 @@ for(const name of ['rat-original.png','rat.png','cobbles.png','masonry.png'])sou
 await writeFile('assets/provenance.json',JSON.stringify({generator:'image_gen.imagegen',date:'2026-10-06',sources,
   notes:'Original generated artwork. rat.png is the transparency edit of rat-original.png. Nearest-neighbor preparation; fixed row anchors. Tail, light masks and geometry are authored in code.'},null,2)+'\n');
 console.log(`Atlas ${width} × ${height}: ${(data.length/1048576).toFixed(2)} MiB decoded; live rat region + 32 retained reference poses.`);
+
+const environmentSources={};
+for(const file of ['street-lantern-original.png','cellar-grille.png',...['diffuse','normal','height','ao'].map(map=>`polyhaven/cobbles-${map}.jpg`)])environmentSources[file]=createHash('sha256').update(await readFile(`assets/source/${file}`)).digest('hex');
+await writeFile('assets/environment-provenance.json',JSON.stringify({date:'2026-10-06',sources:environmentSources,
+  generated:{tool:'image_gen.imagegen',prompts:'assets/environment-prompts.json',files:['street-lantern-original.png','cellar-grille.png']},
+  paving:{title:'Cobblestone Large 01',author:'Rob Tuytel',source:'https://polyhaven.com/a/cobblestone_large_01',license:'CC0-1.0',licenseUrl:'https://polyhaven.com/license',downloadManifest:'https://api.polyhaven.com/files/cobblestone_large_01'},
+  notes:'Original source files retained. Paving is an offline diffuse/normal/AO bake; height guides joint vegetation. Grass, rosettes, rubble and soil masks are code-authored. Reference photographs are not shipped.'},null,2)+'\n');

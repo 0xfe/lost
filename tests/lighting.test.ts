@@ -13,7 +13,7 @@ test('lamp falloff is tied to the street and creates distinct lit and dark stret
   const lamps=nearbyLamps(6,2);
   assert.ok(illumination(lamps,6,0)>illumination(lamps,13,0)*2.5);
   assert.equal(illumination(lamps,6,0),illumination(nearbyLamps(9,2),6,0));
-  assert.equal(PAVING_REPEAT,6);
+  assert.equal(PAVING_REPEAT,12);
 });
 test('portrait and laptop framing leave room around the whole rat',()=>{
   for(const [width,height] of [[312,675],[1100,733],[667,300]]){

@@ -1,4 +1,5 @@
 import { sceneCamera, PAVING_REPEAT, nearbyLamps, lampStrength, illumination, stoneTint, type StreetLamp } from './world/street';
+import { streetDetails } from './world/dressing';
 import { rasterShadow } from './model/shadow';
 import { hash, type Vec2 } from './math';
 import { quadBounds, type QuadCorners } from './quad';
@@ -37,20 +38,23 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
     quad(id, [project(x,y,z),project(x+w,y,z),project(x,y+h,z),project(x+w,y+h,z)], tint, region);
 
   // Texture size and lighting tessellation are independent: stones stay large while light is smooth.
-  const cell=PAVING_REPEAT/4,radius=Math.ceil((width*.5+height)/scale/cell)+2;
+  const divisions=atlas.floor.width/64,cell=PAVING_REPEAT/divisions,radius=Math.ceil((width*.5+height)/scale/cell)+2;
   const baseX=Math.floor(p.x/cell),baseY=Math.floor(p.y/cell);
   const mod=(n:number,m:number)=>(n%m+m)%m;
   for(let ix=baseX-radius;ix<=baseX+radius;ix++)for(let iy=baseY-radius;iy<=baseY+radius;iy++){
     const x=ix*cell,y=iy*cell,corners:[Vec2,Vec2,Vec2,Vec2]=[project(x,y),project(x+cell,y),project(x,y+cell),project(x+cell,y+cell)];
     const bounds=quadBounds(corners);if(bounds.x>width||bounds.x+bounds.width<0||bounds.y>height||bounds.y+bounds.height<0)continue;
-    const region={x:atlas.floor.x+mod(ix,4)*64,y:atlas.floor.y+mod(iy,4)*64,width:64,height:64};
+    const region={x:atlas.floor.x+mod(ix,divisions)*64,y:atlas.floor.y+mod(iy,divisions)*64,width:64,height:64};
     const t=(a:number,b:number):Color=>view.study?[155,167,182,255]:stoneTint(lamps,a,b,p.mood);
     quad('paving',corners,WHITE,region,[t(x,y),t(x+cell,y),t(x,y+cell),t(x+cell,y+cell)]);
   }
   const reach=(width*.5+height)/scale+5;
-  for(let i=Math.floor(p.x-reach);i<Math.ceil(p.x+reach);i++)if(hash(i,7,83)<.38){
-    const y=(hash(i,8,83)-.5)*5,light=illumination(lamps,i,y);
-    for(let j=0;j<3;j++)surface('water',i+j*.12,y+j*.17,.7-j*.12,.045,[140+light*60,160+light*22,177-light*35,12+light*30]);
+  // Irregular dirt deposits collect along verges; damp stains break up the scanned repeat.
+  if(!view.study)for(let i=Math.floor((p.x-reach)/2);i<Math.ceil((p.x+reach)/2);i++){
+    const x=i*2+hash(i,7,83),side=hash(i,8,83)<.5?-1:1;
+    const y=side*(2.3+hash(i,9,83)*1.3),size=1+hash(i,10,83)*1.4;
+    surface('soil',x,y,size,size*.65,stoneTint(lamps,x,y,p.mood),atlas.soil);
+    if(hash(i,11,83)<.3)surface('damp',x-.6,y*.5,size*1.3,size*.42,[40,49,51,115],atlas.soil);
   }
   // Larger masonry and a taller wall establish an animal-sized point of view.
   if(!view.study)for(let ix=Math.floor((p.x-reach)/2);ix<=Math.ceil((p.x+reach)/2);ix++){
@@ -60,36 +64,34 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
       const left=stoneTint(lamps,x,y,p.mood,true),right=stoneTint(lamps,x+2,y,p.mood,true);
       quad('wall',[project(x,y,z+1.5),project(x+2,y,z+1.5),project(x,y,z),project(x+2,y,z)],WHITE,region,[left,right,left,right]);
     }
-    surface('wall-foot',x,y,2,.26,stoneTint(lamps,x,y,p.mood,true),atlas.wall,.16);
+    surface('wall-foot',x,y,2,.18,stoneTint(lamps,x,y,p.mood,true),{x:atlas.wall.x+mod(ix,4)*64,y:atlas.wall.y+230,width:64,height:12},.09);
     if(mod(ix,8)===0){
-      quad('drain',[project(x+.45,y,.72),project(x+1.5,y,.72),project(x+.45,y,.04),project(x+1.5,y,.04)],color('#080e13'));
-      for(let j=0;j<5;j++)line('iron',project(x+.53+j*.21,y,.68),project(x+.53+j*.21,y,.05),2*pixelScale,color('#343d40'));
+      const tint=stoneTint(lamps,x+.9,y,p.mood,true);
+      quad('cellar-grille',[project(x+.05,y+.01,1.46),project(x+1.95,y+.01,1.46),
+        project(x+.05,y+.01,.02),project(x+1.95,y+.01,.02)],tint,atlas.grille);
     }
   }
+  // A generated, registered sprite gives the tall prop real iron, horn and timber surfaces.
   const drawLamp=(lamp:StreetLamp)=>{
-    const {x,y}=lamp,at=project(x,y),top=project(x,y,7.2),flame=project(x,y,7.75);
-    const iron:Color=[32,35,34,255],litIron:Color=[94,88,69,255];
-    // Stone plinth, upright iron shaft and enclosed candle lantern. All dimensions are world units.
-    surface('streetlamp-plinth',x-.23,y-.23,.46,.46,stoneTint(lamps,x,y,p.mood,true),atlas.wall,.13);
-    line('streetlamp-post',project(x,y,.13),top,Math.max(2,scale*.065),iron);
-    line('streetlamp-highlight',project(x+.027,y,.2),project(x+.027,y,7.2),Math.max(.7,scale*.015),litIron);
-    for(const z of [.28,1.2,6.9])line('streetlamp-collar',project(x-.07,y,z),project(x+.07,y,z),Math.max(2,scale*.04),iron);
-    rect('streetlamp-halo',flame.x-scale*.65,flame.y-scale*.65,scale*1.3,scale*1.3,[255,174,69,75*lamp.power],atlas.glow);
-    const corners=[[-.3,-.24],[.3,-.24],[-.3,.24],[.3,.24]] as const;
-    const point=(index:number,z:number)=>project(x+corners[index]![0],y+corners[index]![1],z);
-    quad('streetlamp-glass',[point(2,8.2),point(3,8.2),point(2,7.25),point(3,7.25)],[211,139,57,255]);
-    quad('streetlamp-glass',[point(1,8.2),point(3,8.2),point(1,7.25),point(3,7.25)],[245,179,82,255]);
-    line('streetlamp-flame',project(x,y,7.48),project(x,y,7.92+lamp.power*.04),scale*.09,[255,237,172,255]);
-    for(let i=0;i<4;i++)line('streetlamp-frame',point(i,7.22),point(i,8.2),Math.max(1,scale*.04),iron);
-    for(const z of [7.22,8.2])for(const [a,b] of [[0,1],[1,3],[3,2],[2,0]])line('streetlamp-rim',point(a!,z),point(b!,z),Math.max(1,scale*.05),iron);
-    const peak=project(x,y,8.58);
-    quad('streetlamp-roof',[point(2,8.22),point(3,8.22),peak,peak],[53,53,45,255]);
-    quad('streetlamp-roof',[point(1,8.22),point(3,8.22),peak,peak],[71,66,49,255]);
-    line('streetlamp-finial',peak,project(x,y,8.73),Math.max(1,scale*.03),iron);
-    rect('streetlamp-foot-shadow',at.x-scale*.3,at.y-scale*.12,scale*.6,scale*.24,[0,0,0,95],atlas.shadow);
+    const base=project(lamp.x-.45,lamp.y+.45),flame=project(lamp.x,lamp.y,lamp.z);
+    const h=scale*8.73,w=h*atlas.lantern.width/atlas.lantern.height;
+    rect('streetlamp-foot-shadow',base.x-scale*.45,base.y-scale*.15,scale*.9,scale*.3,[0,0,0,105],atlas.shadow);
+    const tint:Color=[178+p.mood*21,182+p.mood*15,188+p.mood*6,255];
+    rect('streetlamp-post',base.x-w*.335,base.y-h*.985,w,h,tint,atlas.lantern);
+    rect('streetlamp-halo',flame.x-scale*.37,flame.y-scale*.40,scale*.74,scale*.80,[255,166,54,30*lamp.power],atlas.glow);
   };
-  const visibleLamps=lamps.filter(l=>Math.abs(project(l.x,l.y).x-width*.5)<width*.5+scale);
-  if(!view.study)for(const lamp of visibleLamps.filter(l=>l.x+l.y<=p.x+p.y))drawLamp(lamp);
+  const visibleLamps=lamps.filter(l=>Math.abs(project(l.x,l.y).x-width*.5)<width*.5+scale*2);
+  const details=view.study?[]:streetDetails(p.x-reach,p.x+reach,atlas.relief);
+  const drawDetail=(detail:typeof details[number])=>{
+    const at=project(detail.x,detail.y),factor=scale/100*detail.size,region=atlas.plants[detail.variant]!;
+    const tint=stoneTint(lamps,detail.x,detail.y,p.mood);
+    rect(`verge-${detail.id}`,at.x-32*factor,at.y-50*factor,64*factor,64*factor,tint,region);
+  };
+  if(!view.study){
+    const behind=[...details.filter(d=>d.x+d.y<=p.x+p.y).map(d=>({depth:d.x+d.y,draw:()=>drawDetail(d)})),
+      ...visibleLamps.filter(l=>l.x+l.y<=p.x+p.y).map(l=>({depth:l.x+l.y,draw:()=>drawLamp(l)}))];
+    for(const item of behind.sort((a,b)=>a.depth-b.depth))item.draw();
+  }
 
   const rig=ratModel(p);
   const light=illumination(lamps,p.x,p.y);
@@ -126,10 +128,17 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
   }
 
   if(!view.study){
-    for(let x=Math.floor((p.x-reach)/6)*6;x<=p.x+reach;x+=6){
-      surface('gutter',x,4.1,6,.3,stoneTint(lamps,x,4.1,p.mood,true),atlas.wall,.12);
+    // Separate irregular kerbstones, with visible front faces instead of a stretched wall strip.
+    for(let i=Math.floor(p.x-reach);i<=p.x+reach;i++){
+      const x=i+.025,y=4.05+(hash(i,3,172)-.5)*.08,z=.10+hash(i,4,172)*.10;
+      const tint=stoneTint(lamps,x,y,p.mood,true),w=.91+hash(i,5,172)*.06;
+      surface('kerb-top',x,y,w,.38,tint,{x:atlas.wall.x+70+mod(i,3)*30,y:atlas.wall.y+140,width:24,height:12},z);
+      quad('kerb-face',[project(x,y+.38,z),project(x+w,y+.38,z),project(x,y+.38),project(x+w,y+.38)],
+        [tint[0]*.68,tint[1]*.68,tint[2]*.68,255],{x:atlas.wall.x+70+mod(i,3)*30,y:atlas.wall.y+150,width:24,height:12});
     }
-    for(const lamp of visibleLamps.filter(l=>l.x+l.y>p.x+p.y).sort((a,b)=>a.x+a.y-b.x-b.y))drawLamp(lamp);
+    const front=[...details.filter(d=>d.x+d.y>p.x+p.y).map(d=>({depth:d.x+d.y,draw:()=>drawDetail(d)})),
+      ...visibleLamps.filter(l=>l.x+l.y>p.x+p.y).map(l=>({depth:l.x+l.y,draw:()=>drawLamp(l)}))];
+    for(const item of front.sort((a,b)=>a.depth-b.depth))item.draw();
   }
   if(view.rain)for(let i=0;i<65;i++){
     const x=((hash(i,1,91)*width+p.time*15) % (width+40))-20;

@@ -62,6 +62,10 @@ try{
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await page.goto(`http://127.0.0.1:${port}/?test=1&renderer=canvas&paused&time=6`);await page.waitForFunction(()=>window.__lost?.frames>2);
   assert.equal(await page.evaluate(()=>window.__lost.renderer),'Canvas 2D');await page.screenshot({path:'artifacts/browser-canvas-mobile.png'});
-  await page.setViewportSize({width:1440,height:960});await page.screenshot({path:'artifacts/browser-canvas.png'});
+  await page.setViewportSize({width:1440,height:960});
+  await page.waitForFunction(()=>document.querySelector('#scene').width===Math.round(innerWidth/Math.max(1.25,innerWidth/1100)));
+  const resizedFrame=await page.evaluate(()=>window.__lost.frames);
+  await page.waitForFunction(n=>window.__lost.frames>n+2,resizedFrame);
+  await page.screenshot({path:'artifacts/browser-canvas.png'});
   assert.deepEqual(errors,[]);console.log('Browser checks passed: WebGL, Canvas, desktop/mobile, actions, facing, mood, keyboard, pause, notes, exploration routes, scent returns, responsive framing and shadow patches.');
 }finally{await browser?.close();server.close();}

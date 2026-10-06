@@ -4,7 +4,7 @@
 
 ![A rat sniffing, walking and scurrying along a candlelit medieval street](docs/media/lost.gif)
 
-This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 003 adds irregular, seeded exploration to a continuously articulated 3D rat, rasterized into pixel art. He mostly walks, changes pace, follows side scents and returns to his route. Wider responsive framing and larger stones establish his small size; upright street lamps light both the world and the rat, with a shadow projected from his posed mesh. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Generated cobbles and castle masonry provide the street, and the original generated rat supplies an appearance reference and fur material. This is a motion study, not a complete movie.
+This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 003 adds irregular, seeded exploration to a continuously articulated 3D rat, rasterized into pixel art. He mostly walks, changes pace, follows side scents and returns to his route. Wider responsive framing and larger stones establish his small size; upright street lamps light both the world and the rat, with a shadow projected from his posed mesh. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Scanned weathered cobbles, generated castle masonry and researched lantern/grille sprites provide the street. Seeded grass, broadleaf weeds, rubble and soil deposits soften its edges, and the original generated rat supplies an appearance reference and fur material. This is a motion study, not a complete movie.
 
 ## Run
 
@@ -63,7 +63,7 @@ Browser tests use installed Google Chrome (`/Applications/Google Chrome.app/Cont
 
 Open **http://localhost:4173/?lab** for live motion inspection. `artifacts/motion-study.html` plays walking and scurrying side by side after `npm run motion`; each two-second loop includes contact overlays and a scrolling diagnostic floor. `motion-metrics.json` records stance drift, support counts and CPU raster timings. These loops reset at their boundaries; they are inspection clips, not seamless animation assets.
 
-Inspect `artifacts/browser-motion-lab.png`, `browser-webgl.png`, `browser-mobile.png`, `browser-home.png`, `rat-directions.png`, `lost-memory.png`, `home-memory.png` and `budget.json`. `npm run snapshot` recreates the software renders. The atlas remains **1536 × 896, 5.25 MiB decoded**, below the 16 MiB atlas limit. Reserved **384 × 288** and **352 × 288** regions receive the live rat and its cast shadow each frame. WebGL updates those regions with `texSubImage2D`; no additional texture or runtime library is needed.
+Inspect `artifacts/browser-motion-lab.png`, `browser-webgl.png`, `browser-mobile.png`, `browser-home.png`, `rat-directions.png`, `lost-memory.png`, `home-memory.png` and `budget.json`. `npm run snapshot` recreates the software renders. The atlas remains **1536 × 1536, 9 MiB decoded**, below the 16 MiB atlas limit. Reserved **384 × 288** and **352 × 288** regions receive the live rat and its cast shadow each frame. WebGL updates those regions with `texSubImage2D`; no additional texture or runtime library is needed.
 
 ## Build and deploy
 
@@ -84,6 +84,7 @@ The uploader's flags follow the [official gcloud storage reference](https://docs
 
 - [How procedural models, animation and pixel rendering work](docs/rat-design.md)
 - [Strategy, rat-motion research, implementation and limits](docs/STRATEGY.md)
+- [Street artwork, reference research and terrain dressing](docs/street-design.md)
 - [Assets, exact prompts, crop registration and provenance](docs/ASSETS.md)
 - [Contributor guidance](AGENTS.md)
 

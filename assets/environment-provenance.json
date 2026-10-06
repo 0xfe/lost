@@ -1,0 +1,28 @@
+{
+  "date": "2026-10-06",
+  "sources": {
+    "street-lantern-original.png": "ce4b700cb988bd240763e0eec751b0eddf4d8d5eb4e86668ef565e20eb618023",
+    "cellar-grille.png": "c7a2fbf47041a29050c362c6f28bdbe3118af39931d3b18360f11b408bb03a2d",
+    "polyhaven/cobbles-diffuse.jpg": "135e067ac9943b1c3782eae5242bac317725d0885398c94656f4e3b7c21eccf2",
+    "polyhaven/cobbles-normal.jpg": "6205740a0dc8307216c949ad7ce25d09e4b8bc9eb3561e947dd69b45e2931740",
+    "polyhaven/cobbles-height.jpg": "986ece0756b259735f86e42c24fdba4b52c4ff81f2747f81c612e8018ec49a1b",
+    "polyhaven/cobbles-ao.jpg": "5f6feb5285038e5f45ad20527bb3d4fa5c10b2d0ee12d8a15f8dbf4f94d4588c"
+  },
+  "generated": {
+    "tool": "image_gen.imagegen",
+    "prompts": "assets/environment-prompts.json",
+    "files": [
+      "street-lantern-original.png",
+      "cellar-grille.png"
+    ]
+  },
+  "paving": {
+    "title": "Cobblestone Large 01",
+    "author": "Rob Tuytel",
+    "source": "https://polyhaven.com/a/cobblestone_large_01",
+    "license": "CC0-1.0",
+    "licenseUrl": "https://polyhaven.com/license",
+    "downloadManifest": "https://api.polyhaven.com/files/cobblestone_large_01"
+  },
+  "notes": "Original source files retained. Paving is an offline diffuse/normal/AO bake; height guides joint vegetation. Grass, rosettes, rubble and soil masks are code-authored. Reference photographs are not shipped."
+}
