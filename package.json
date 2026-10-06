@@ -1,0 +1,30 @@
+{
+  "name": "lost",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "A little rat. A long night. An isometric film study.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "assets": "node scripts/prepare-assets.mjs",
+    "typecheck": "tsc --noEmit",
+    "build": "npm run assets && npm run typecheck && node scripts/build.mjs",
+    "serve": "node scripts/serve.mjs",
+    "dev": "npm run build && npm run serve",
+    "test": "tsx --test tests/*.test.ts",
+    "snapshot": "tsx scripts/snapshot.ts",
+    "test:browser": "node scripts/browser-test.mjs",
+    "check": "npm run build && npm test && npm run snapshot",
+    "deploy": "bash scripts/deploy.sh"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "esbuild": "^0.25.0",
+    "playwright-core": "^1.56.0",
+    "sharp": "^0.35.5",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

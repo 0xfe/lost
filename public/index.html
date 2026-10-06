@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#11191e"><meta name="description" content="A little rat. A long night. An interactive isometric pixel-art film study.">
+  <title>Lost — a little rat, a long night</title><link rel="stylesheet" href="./style.css">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%2311191e'/%3E%3Ctext x='32' y='47' text-anchor='middle' fill='%23d5bb8b' font-family='Georgia' font-size='48'%3El%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+  <canvas id="scene" aria-label="A brown rat exploring a candlelit medieval stone street"></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <header class="title-block interface"><p class="eyebrow">A LITTLE RAT. A LONG NIGHT.</p><h1>lost<span>.</span></h1><p class="subtitle">Somewhere, there is a way home.</p></header>
+  <nav class="top-tools interface" aria-label="View tools"><span class="edition">STUDY 001 <span> / </span> THE STREET</span><button id="notes" aria-label="Open field notes">Field notes <span>↗</span></button><button id="fullscreen" aria-label="Toggle fullscreen">⛶</button></nav>
+  <div id="loading" role="status">Lighting the street<span>…</span></div>
+  <div id="fatal" role="alert" hidden></div>
+  <button id="show-controls" hidden>Show controls <kbd>H</kbd></button>
+  <aside id="controls" class="interface" aria-label="Scene controls">
+    <div class="panel-top"><span><i class="live-dot"></i> <span id="activity">Taking in the night</span></span><span class="panel-label">A MOTION & ATMOSPHERE STUDY</span><button id="hide" aria-label="Hide controls">−</button></div>
+    <div class="panel-body">
+      <section class="behavior"><h2>Let him find his feet</h2><div class="action-buttons">
+        <button id="explore" class="primary" aria-pressed="true"><span>▷</span> Explore</button>
+        <button data-action="walk" aria-pressed="false">Walk <kbd>1</kbd></button><button data-action="scurry" aria-pressed="false">Scurry <kbd>2</kbd></button>
+        <button data-action="sniff" aria-pressed="false">Sniff <kbd>3</kbd></button><button data-action="listen" aria-pressed="false">Listen <kbd>4</kbd></button><button data-action="groom" aria-pressed="false">Groom <kbd>5</kbd></button>
+      </div><div class="playback"><button id="pause" aria-pressed="false">Ⅱ Pause</button><button id="rest">Rest</button><button id="reset">↺ Reset</button><span class="key-hint">Arrow keys to roam</span></div></section>
+      <section class="facing"><h2>Look around</h2><div class="compass" aria-label="Face a direction">
+        <button data-dir="-1,-1" aria-label="Face northwest">↖</button><button data-dir="0,-1" aria-label="Face north">↑</button><button data-dir="1,-1" aria-label="Face northeast">↗</button>
+        <button data-dir="-1,0" aria-label="Face west">←</button><span aria-hidden="true">·</span><button data-dir="1,0" aria-label="Face east">→</button>
+        <button data-dir="-1,1" aria-label="Face southwest">↙</button><button data-dir="0,1" aria-label="Face south">↓</button><button data-dir="1,1" aria-label="Face southeast">↘</button>
+      </div></section>
+      <section class="atmosphere"><h2>Light at the end <output id="mood-label">Lost</output></h2><label class="sr-only" for="mood">Mood, from lost to home</label><input id="mood" type="range" min="0" max="100" value="12"><div class="range-labels"><span>LOST</span><span>HOME</span></div><div class="small-controls"><label><input id="rain" type="checkbox" checked> Rain</label><label for="zoom">Closer <input id="zoom" type="range" min="80" max="180" value="120"></label></div></section>
+    </div>
+    <footer><span>MEDIEVAL QUARTER <span class="separator">·</span> AFTER MIDNIGHT</span><span><kbd>Space</kbd> pause <span class="separator">/</span> <kbd>H</kbd> hide interface</span><span id="renderer-label">WEBGL</span></footer>
+  </aside>
+  <dialog id="notes-dialog"><button id="close-notes" aria-label="Close field notes">×</button><p class="eyebrow">FIELD NOTES / 001</p><h2>A small life,<br>a very big night.</h2><p>A rendering and movement study for a short film about a lost rat. The camera stays with him; the city passes beneath his feet.</p><p>Let him explore, or use the arrow keys to guide him. Try a cautious sniff, a pause to listen, then a quick scurry. The compass changes his facing. Move the light toward “Home” to try a warmer ending.</p><p class="note-detail">Generated directional pixel art, an independently articulated tail, and a deterministic 60 Hz simulation. Eight views and four walking poses are an initial motion study; the film’s final performance will need a more detailed rig.</p><div class="note-keys"><kbd>1–5</kbd> actions <kbd>0</kbd> rest <kbd>Space</kbd> pause <kbd>H</kbd> interface</div><button id="back-street" class="primary">Back to the street</button></dialog>
+  <script type="module" src="./app.js"></script>
+</body>
+</html>

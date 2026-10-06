@@ -1,0 +1,11 @@
+{
+  "generator": "image_gen.imagegen",
+  "date": "2026-10-06",
+  "sources": {
+    "rat-original.png": "310ed0ed2b6defa13148cbbba07c5eb57726cab27fe4f57d225d69414801b21a",
+    "rat.png": "c2cf5b76f1eed0eacb7dc0ed07b03ffcf881e1adbc2bdecfbcba64ab86fbabc9",
+    "cobbles.png": "600ae234615fb9891ce237229c76e88fb7fb3a0aa070bf1d24459caae5600a0c",
+    "masonry.png": "e658581a660919c8458c77725efe71a720eaec59aa360d0d261cb0b41908d83a"
+  },
+  "notes": "Original generated artwork. rat.png is the transparency edit of rat-original.png. Nearest-neighbor preparation; fixed row anchors. Tail, light masks and geometry are authored in code."
+}

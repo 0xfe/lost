@@ -1,0 +1,7 @@
+{
+  "tool": "image_gen.imagegen",
+  "input": "assets/source/rat-original.png",
+  "output": "assets/source/rat.png",
+  "transparent_background": true,
+  "prompt": "Remove the brown background completely from this sprite sheet. Return exactly the same 32 tailless rats in exactly the same positions and dimensions, with genuine transparent alpha all around each rat. Preserve all fur, paws, ears, eyes and whiskers. Do not redraw or move rats. No solid colored background, no backdrop, no shadows between cells. Actual RGBA transparent background, this is a game sprite sheet. The rats must be isolated cutouts. Preserve 4 columns and 8 rows."
+}
