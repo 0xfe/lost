@@ -14,9 +14,19 @@ try{
   const errors=[];page.on('pageerror',error=>errors.push(error.message));page.on('console',msg=>{if(msg.type()==='error')errors.push(msg.text());});
   await page.goto(`http://127.0.0.1:${port}/?test=1&paused&time=6`);await page.waitForFunction(()=>window.__lost?.frames>2);
   assert.equal(await page.evaluate(()=>window.__lost.renderer),'WebGL');
+  assert.equal(await page.locator('#controls').isVisible(),false);
+  assert.equal(await page.locator('#sound').isVisible(),true);
+  assert.equal(await page.evaluate(()=>window.__lost.audio.state),'unopened');
+  assert.equal(await page.evaluate(()=>performance.getEntriesByType('resource').some(r=>r.name.endsWith('.wav'))),false);
+  await page.screenshot({path:'artifacts/browser-audio-muted.png'});
+  await page.locator('#sound').click();
+  await page.waitForFunction(()=>!window.__lost.audio.loading&&!window.__lost.audio.muted);
+  await page.waitForFunction(()=>window.__lost.audio.state==='suspended'); // scene starts paused
+
   await page.screenshot({path:'artifacts/browser-webgl.png'});
   assert.equal(await page.locator('#zoom').inputValue(),'90');
   assert.equal(await page.evaluate(()=>window.__lost.frame().patches.length),2);
+  await page.locator('#show-controls').click();
   await page.getByRole('button',{name:'Face northwest',exact:true}).click();
   assert.equal(await page.evaluate(()=>window.__lost.rat.explore),true);
   await page.evaluate(()=>window.__lost.advance(2));
@@ -28,6 +38,7 @@ try{
   await page.evaluate(()=>window.__lost.advance(7));
   assert.equal(await page.evaluate(()=>window.__lost.rat.exploration.phase),'travel');
 
+  await page.locator('#show-controls').click();
   await page.getByRole('button',{name:'Motion lab',exact:true}).click();
   assert.equal(await page.locator('#lab').isVisible(),true);
   await page.locator('#time-scale').selectOption('0.25');
@@ -51,7 +62,20 @@ try{
   await page.getByRole('button',{name:'Open field notes'}).click();assert.equal(await page.locator('dialog').isVisible(),true);await page.keyboard.press('Escape');
   await page.getByRole('button',{name:'Reset',exact:false}).click();
   await page.keyboard.down('ArrowRight');await page.waitForFunction(()=>window.__lost.rat.current.speed>.3);await page.keyboard.up('ArrowRight');assert.equal(await page.evaluate(()=>window.__lost.rat.requested),'idle');
+  await page.locator('#sound').click();
+  await page.waitForFunction(()=>!window.__lost.audio.loading&&window.__lost.audio.voices>0);
+  assert.ok(await page.evaluate(()=>window.__lost.audio.voices)<=40);
+  await page.keyboard.press('m');await page.waitForFunction(()=>window.__lost.audio.state==='suspended');
+  assert.equal(await page.evaluate(()=>window.__lost.audio.muted),true);
+  await page.keyboard.press('m');await page.waitForFunction(()=>window.__lost.audio.state==='running');
+  await page.locator('#pause').click();await page.waitForFunction(()=>window.__lost.audio.state==='suspended');
+  assert.equal(await page.evaluate(()=>window.__lost.audio.muted),false);
+  await page.locator('#pause').click();await page.waitForFunction(()=>window.__lost.audio.state==='running');
+  await page.locator('.sound-mix summary').click();
+  await page.locator('[data-sound="rain"]').fill('0');
+  await page.locator('.sound-mix summary').click();
   await page.setViewportSize({width:390,height:844});await page.screenshot({path:'artifacts/browser-mobile.png'});
+  assert.ok(await page.locator('#sound').evaluate(el=>el.getBoundingClientRect().right<=innerWidth));
   assert.equal(await page.locator('#zoom').inputValue(),'90');
   const actorBottom=await page.evaluate(()=>{
     const frame=window.__lost.frame(),body=frame.commands.find(c=>c.id.startsWith('rat-body'));
@@ -67,5 +91,12 @@ try{
   const resizedFrame=await page.evaluate(()=>window.__lost.frames);
   await page.waitForFunction(n=>window.__lost.frames>n+2,resizedFrame);
   await page.screenshot({path:'artifacts/browser-canvas.png'});
-  assert.deepEqual(errors,[]);console.log('Browser checks passed: WebGL, Canvas, desktop/mobile, actions, facing, mood, keyboard, pause, notes, exploration routes, scent returns, responsive framing and shadow patches.');
+  // Failed loading remains recoverable and does not break the visual scene.
+  await page.route('**/*.wav',route=>route.fulfill({status:200,contentType:'audio/wav',body:'Invalid audio for retry test'}));
+  await page.locator('#sound').click();await page.waitForFunction(()=>!!window.__lost.audio.error);
+  assert.equal(await page.evaluate(()=>window.__lost.audio.muted),true);
+  assert.equal(await page.locator('#sound').isEnabled(),true);
+  await page.unroute('**/*.wav');
+  await page.locator('#sound').click();await page.waitForFunction(()=>!window.__lost.audio.loading&&!window.__lost.audio.muted);
+  assert.deepEqual(errors,[]);console.log('Browser checks passed: WebGL, Canvas, desktop/mobile, actions, facing, mood, keyboard, pause, notes, exploration routes, scent returns, responsive framing, shadow patches, muted startup, lazy audio, pause/resume, mix controls and retry.');
 }finally{await browser?.close();server.close();}

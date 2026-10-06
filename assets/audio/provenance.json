@@ -1,0 +1,62 @@
+[
+  {
+    "file": "crickets.mp3",
+    "author": "Ted Kerr (Wolfgang_)",
+    "page": "https://opengameart.org/content/crickets-ambient-noise-loopable",
+    "download": "https://opengameart.org/sites/default/files/crickets_1.mp3",
+    "license": "CC0-1.0",
+    "sha256": "5b5bd1f744087888c5623543c3ff80be9c2ce106093993e7c8a8492b0280b2c0",
+    "bytes": 184393,
+    "note": ""
+  },
+  {
+    "file": "fire.wav",
+    "author": "AntumDeluge",
+    "page": "https://opengameart.org/content/fire-crackling",
+    "download": "https://opengameart.org/sites/default/files/fire-1.wav",
+    "license": "CC0-1.0",
+    "sha256": "26702de8a195bcbafeae72034861d875a1b7917168a25106f4e1957ecdddf7e5",
+    "bytes": 253232,
+    "note": ""
+  },
+  {
+    "file": "steps.7z",
+    "author": "Fantozzi; sliced by qubodup",
+    "page": "https://opengameart.org/content/fantozzis-footsteps-grasssand-stone",
+    "download": "https://opengameart.org/sites/default/files/Fantozzi-footsteps.7z",
+    "license": "CC0-1.0",
+    "sha256": "415d360e0911c1c1c5355ee94023b772e6f4044f59b9b580610e7dbffd1840fd",
+    "bytes": 476363,
+    "note": ""
+  },
+  {
+    "file": "leaves.7z",
+    "author": "Iwan Gabovitch (qubodup)",
+    "page": "https://opengameart.org/content/20-rustles-dry-leaves",
+    "download": "https://opengameart.org/sites/default/files/qubodup-rustle.7z",
+    "license": "CC0-1.0",
+    "sha256": "c5d7458085e9b208009388b832184bddc0045482f6fa67a1eb6ea09335bb7a43",
+    "bytes": 10565232,
+    "note": ""
+  },
+  {
+    "file": "rain.ogg",
+    "author": "Ove Melaa",
+    "page": "https://opengameart.org/content/rain-ambient-not-loopable-2-versions-available",
+    "download": "https://opengameart.org/sites/default/files/Ove%20Melaa%20-%20Rainy%20%28NOT%20loopable%29.ogg",
+    "license": "CC0-1.0",
+    "sha256": "5083851776c2b3ff56b81550672d7f697efcdb88f605f83402d7dfc91c56b476",
+    "bytes": 1633276,
+    "note": ""
+  },
+  {
+    "file": "voices.mp3",
+    "author": "Breviceps",
+    "page": "https://freesound.org/people/Breviceps/sounds/457043/",
+    "download": "https://cdn.freesound.org/previews/457/457043_9159316-hq.mp3",
+    "license": "CC0-1.0",
+    "sha256": "623eacd59fcfbceb7aa8dde58f8cd6f41eb33a8009dd255b42b20ec0273b6544",
+    "bytes": 362555,
+    "note": "Public HQ preview; original requires login"
+  }
+]

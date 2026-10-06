@@ -1,0 +1,146 @@
+[
+  {
+    "id": "rain",
+    "source": "assets/audio/source/rain.ogg",
+    "start": 3,
+    "duration": 19,
+    "loop": true,
+    "rate": 24000,
+    "frames": 440400,
+    "bytes": 880844,
+    "sha256": "31fdaf40417c2c50d156d0131bcbe83b110cfdf55e3d0b4c94ab32a91608c0e7"
+  },
+  {
+    "id": "drizzle",
+    "source": "assets/audio/source/rain.ogg",
+    "start": 27,
+    "duration": 13,
+    "loop": true,
+    "rate": 24000,
+    "frames": 296400,
+    "bytes": 592844,
+    "sha256": "32131f0017b1fb4ea412853efd22bbf46d06dc27d3b756fddd9c408651bb9bb1"
+  },
+  {
+    "id": "crickets",
+    "source": "assets/audio/source/crickets.mp3",
+    "start": 0,
+    "duration": 10,
+    "loop": true,
+    "rate": 24000,
+    "frames": 224400,
+    "bytes": 448844,
+    "sha256": "2063e28747082d038a6ef95cb9aeb47304d2a5e57f3ad79997083636a0ff6f76"
+  },
+  {
+    "id": "candle",
+    "source": "assets/audio/source/fire.wav",
+    "start": 0,
+    "duration": 2,
+    "loop": true,
+    "rate": 24000,
+    "frames": 36000,
+    "bytes": 72044,
+    "sha256": "0ab76cb838085c45660286ce79cb537ba66cf5c78f3f99e38a4bec4cfbc29b18"
+  },
+  {
+    "id": "voices",
+    "source": "assets/audio/source/voices.mp3",
+    "start": 1,
+    "duration": 13,
+    "rate": 24000,
+    "frames": 312000,
+    "bytes": 624044,
+    "sha256": "7b0c5d5d70f579eb7b67a8250b7f02a8e2a52268c08c9c20ae9a793268e0f822"
+  },
+  {
+    "id": "leaves1",
+    "source": "artifacts/audio-source/rustle/rustle01.flac",
+    "start": 0,
+    "duration": 3,
+    "rate": 24000,
+    "frames": 37905,
+    "bytes": 75854,
+    "sha256": "ad868c88effacd1bf51515d6c804a232146533271b03ea017c8d2c4b2239f403"
+  },
+  {
+    "id": "leaves2",
+    "source": "artifacts/audio-source/rustle/rustle02.flac",
+    "start": 0,
+    "duration": 3,
+    "rate": 24000,
+    "frames": 20458,
+    "bytes": 40960,
+    "sha256": "05afb1e0c344312cc6444187dae1436053303c17c459d09f0ee8ced96bdf02c6"
+  },
+  {
+    "id": "leaves3",
+    "source": "artifacts/audio-source/rustle/rustle03.flac",
+    "start": 0,
+    "duration": 3,
+    "rate": 24000,
+    "frames": 56033,
+    "bytes": 112110,
+    "sha256": "668c845a70ad5b6ae151e5cbb51abc2526bdd9caf45abbde2cf89612d8896841"
+  },
+  {
+    "id": "stone1",
+    "source": "artifacts/audio-source/Fantozzi-footsteps/flac/Fantozzi-StoneL1.flac",
+    "start": 0,
+    "duration": 1,
+    "rate": 24000,
+    "frames": 8947,
+    "bytes": 17938,
+    "sha256": "0710508e0969f34e6dcdb2230bc9e4918148b17ec265c22e94be72a0bbad76ed"
+  },
+  {
+    "id": "stone2",
+    "source": "artifacts/audio-source/Fantozzi-footsteps/flac/Fantozzi-StoneL2.flac",
+    "start": 0,
+    "duration": 1,
+    "rate": 24000,
+    "frames": 7888,
+    "bytes": 15820,
+    "sha256": "44bba6cca65ef6037e967620d0486fc9cd1d7472a2d2288e2b1571971832a63e"
+  },
+  {
+    "id": "stone3",
+    "source": "artifacts/audio-source/Fantozzi-footsteps/flac/Fantozzi-StoneL3.flac",
+    "start": 0,
+    "duration": 1,
+    "rate": 24000,
+    "frames": 7910,
+    "bytes": 15864,
+    "sha256": "856a0481551e4430ceeecbdb57f86da4904f3e43c617b14ff66af377ef35e33d"
+  },
+  {
+    "id": "sand1",
+    "source": "artifacts/audio-source/Fantozzi-footsteps/flac/Fantozzi-SandL1.flac",
+    "start": 0,
+    "duration": 1,
+    "rate": 24000,
+    "frames": 10590,
+    "bytes": 21224,
+    "sha256": "0681e32a51cf696c7cd4ab258d952ea3ae84863057b071918daed206683d87fa"
+  },
+  {
+    "id": "sand2",
+    "source": "artifacts/audio-source/Fantozzi-footsteps/flac/Fantozzi-SandL2.flac",
+    "start": 0,
+    "duration": 1,
+    "rate": 24000,
+    "frames": 7588,
+    "bytes": 15220,
+    "sha256": "a1ae7a88c6d2bb0ca5d5bafe2fa154e585676804efeeb8008a8d7af1b3ce528e"
+  },
+  {
+    "id": "sand3",
+    "source": "artifacts/audio-source/Fantozzi-footsteps/flac/Fantozzi-SandL3.flac",
+    "start": 0,
+    "duration": 1,
+    "rate": 24000,
+    "frames": 7159,
+    "bytes": 14362,
+    "sha256": "d0a381880cefe0eb818abd9a7263c5892fc8606b4de3ace12a21836a62837080"
+  }
+]

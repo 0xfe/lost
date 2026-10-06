@@ -9,8 +9,10 @@
 <body>
   <canvas id="scene" aria-label="A brown rat exploring a candlelit medieval stone street"></canvas>
   <div class="vignette" aria-hidden="true"></div>
-  <header class="title-block interface"><p class="eyebrow">A LITTLE RAT. A LONG NIGHT.</p><h1>lost<span>.</span></h1><p class="subtitle">Somewhere, there is a way home.</p></header>
-  <nav class="top-tools interface" aria-label="View tools"><span class="edition">STUDY 003 <span> / </span> FOLLOWING HIS NOSE</span><button id="motion-lab" aria-pressed="false">Motion lab</button><button id="notes" aria-label="Open field notes">Field notes <span>↗</span></button><button id="fullscreen" aria-label="Toggle fullscreen">⛶</button></nav>
+  <button id="sound" aria-label="Enable sound" aria-pressed="false" title="Enable sound (M)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9h4l5-4v14l-5-4H3z"/><path class="sound-waves" d="M16 8q5 4 0 8M19 4q9 8 0 16"/><path class="sound-slash" d="m16 9 6 6m0-6-6 6"/></svg><span id="sound-label">Sound off</span></button>
+  <span id="audio-status" class="sr-only" role="status"></span>
+  <header class="title-block interface" hidden><p class="eyebrow">A LITTLE RAT. A LONG NIGHT.</p><h1>lost<span>.</span></h1><p class="subtitle">Somewhere, there is a way home.</p></header>
+  <nav class="top-tools interface" hidden aria-label="View tools"><span class="edition">STUDY 003 <span> / </span> FOLLOWING HIS NOSE</span><button id="motion-lab" aria-pressed="false">Motion lab</button><button id="notes" aria-label="Open field notes">Field notes <span>↗</span></button><button id="fullscreen" aria-label="Toggle fullscreen">⛶</button></nav>
   <aside id="lab" class="interface" aria-label="Motion diagnostics" hidden>
     <p class="eyebrow">MOTION LAB</p><p id="gait-readout">Four-beat walk</p>
     <div class="foot-status"><span id="foot-0">LF</span><span id="foot-1">RF</span><span id="foot-2">LH</span><span id="foot-3">RH</span></div>
@@ -21,8 +23,8 @@
   </aside>
   <div id="loading" role="status">Lighting the street<span>…</span></div>
   <div id="fatal" role="alert" hidden></div>
-  <button id="show-controls" hidden>Show controls <kbd>H</kbd></button>
-  <aside id="controls" class="interface" aria-label="Scene controls">
+  <button id="show-controls">Show controls <kbd>H</kbd></button>
+  <aside id="controls" class="interface" hidden aria-label="Scene controls">
     <div class="panel-top"><span><i class="live-dot"></i> <span id="activity">Taking in the night</span></span><span class="panel-label">A MOTION & ATMOSPHERE STUDY</span><button id="hide" aria-label="Hide controls">−</button></div>
     <div class="panel-body">
       <section class="behavior"><h2>Let him find his feet</h2><div class="action-buttons">
@@ -37,6 +39,14 @@
       </div></section>
       <section class="atmosphere"><h2>Light at the end <output id="mood-label">Lost</output></h2><label class="sr-only" for="mood">Mood, from lost to home</label><input id="mood" type="range" min="0" max="100" value="12"><div class="range-labels"><span>LOST</span><span>HOME</span></div><div class="small-controls"><label><input id="rain" type="checkbox" checked> Rain</label><label for="zoom">Closer <input id="zoom" type="range" min="60" max="150" value="90"></label></div></section>
     </div>
+    <details class="sound-mix"><summary>Sound mix</summary><div>
+      <label>Rain & drizzle<input data-sound="rain" type="range" min="0" max="150" value="100"></label>
+      <label>Crickets<input data-sound="insects" type="range" min="0" max="150" value="100"></label>
+      <label>Foliage<input data-sound="foliage" type="range" min="0" max="150" value="100"></label>
+      <label>Passing people<input data-sound="people" type="range" min="0" max="150" value="100"></label>
+      <label>Candles<input data-sound="candle" type="range" min="0" max="150" value="100"></label>
+      <label>Paws & crawl<input data-sound="rat" type="range" min="0" max="150" value="100"></label>
+    </div></details>
     <footer><span>MEDIEVAL QUARTER <span class="separator">·</span> AFTER MIDNIGHT</span><span><kbd>Space</kbd> pause <span class="separator">/</span> <kbd>H</kbd> hide interface</span><span id="renderer-label">WEBGL</span></footer>
   </aside>
   <dialog id="notes-dialog"><button id="close-notes" aria-label="Close field notes">×</button><p class="eyebrow">FIELD NOTES / 003</p><h2>A small life,<br>a very big night.</h2><p>A rendering and movement study for a short film about a lost rat. The camera stays with him; the city passes beneath his feet.</p><p>Let him explore: he wanders, catches scents, investigates and returns to his route. Or use the arrow keys to guide him. Try a cautious sniff, a pause to listen, then a quick scurry. The compass sets his route while exploring, or changes his facing during a selected action. Move the light toward “Home” to try a warmer ending.</p><p class="note-detail">A continuously articulated rat: planted paws, jointed limbs, a flexible spine, searching head, twitching ears and a trailing tail. Walking uses staggered steps; scurrying uses an asymmetric gallop. Open Motion lab to slow time, inspect contacts, or advance a single simulation step.</p><div class="note-keys"><kbd>1–5</kbd> actions <kbd>0</kbd> rest <kbd>Space</kbd> pause <kbd>H</kbd> interface</div><button id="back-street" class="primary">Back to the street</button></dialog>

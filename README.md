@@ -4,7 +4,7 @@
 
 ![A rat sniffing, walking and scurrying along a candlelit medieval street](docs/media/lost.gif)
 
-This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 003 adds irregular, seeded exploration to a continuously articulated 3D rat, rasterized into pixel art. He mostly walks, changes pace, follows side scents and returns to his route. Wider responsive framing and larger stones establish his small size; upright street lamps light both the world and the rat, with a shadow projected from his posed mesh. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Scanned weathered cobbles, generated castle masonry and researched lantern/grille sprites provide the street. Seeded grass, broadleaf weeds, rubble and soil deposits soften its edges, and the original generated rat supplies an appearance reference and fur material. This is a motion study, not a complete movie.
+This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 003 adds irregular, seeded exploration to a continuously articulated 3D rat, rasterized into pixel art. He mostly walks, changes pace, follows side scents and returns to his route. Wider responsive framing and larger stones establish his small size; upright street lamps light both the world and the rat, with a shadow projected from his posed mesh. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Scanned weathered cobbles, generated castle masonry and researched lantern/grille sprites provide the street. Seeded grass, broadleaf weeds, rubble and soil deposits soften its edges, and the original generated rat supplies an appearance reference and fur material. The street now has a spatial soundscape: rain, crickets, foliage, distant passers, candle crackle and contact-timed paw foley. This is a motion study, not a complete movie.
 
 ## Run
 
@@ -21,6 +21,8 @@ The browser has **zero runtime dependencies**. TypeScript, esbuild, Sharp, tsx a
 
 ## Controls
 
+The interface starts hidden and **sound starts muted** on every visit. Tap **Sound off** at the top right to listen; use **Show controls** or `H` for the full menu. Audio downloads only after you enable it. Headphones reveal the stereo positioning.
+
 | Control | Behavior |
 | --- | --- |
 | Explore | Mostly walks with varied pace and heading, occasional scurries and scent detours; click again to rest |
@@ -33,9 +35,11 @@ The browser has **zero runtime dependencies**. TypeScript, esbuild, Sharp, tsx a
 | Compass | Set the exploration route, or turn while retaining a manually selected action |
 | Arrow keys | Hold to guide the rat; release to stop |
 | Hold/click the street | Walk toward that screen direction; release to stop; touch supported |
-| Pause / `Space` | Freeze simulation, tail, lighting and rain |
+| Pause / `Space` | Freeze simulation, tail, lighting and rain; suspend audio |
 | Light at the end | Ease the palette from cold/lost to warmer/home |
-| Rain | Toggle rain streaks; the street stays wet |
+| Rain | Toggle rain streaks and rain/drizzle sound; the street stays wet |
+| Sound button / `M` | Enable or mute all audio; always available at the top right |
+| Sound mix | Independent rain, crickets, foliage, people, candle and paw/crawl levels; zero silences a group |
 | Closer | Adjust framing; starts at 90%, with extra room on narrow or short screens |
 | `H` / minus button | Hide the interface; use `H` or Show controls to restore |
 | Motion lab | Open contact indicators, playback speed and joint overlays |
@@ -46,7 +50,7 @@ The browser has **zero runtime dependencies**. TypeScript, esbuild, Sharp, tsx a
 | Field notes | About the study and keyboard reference |
 | Fullscreen icon | Toggle browser fullscreen where supported |
 
-Space uses native activation when a button is focused. Sliders retain native keyboard controls. Reduced-motion preference starts the scene paused. Background tabs do not accumulate simulation time.
+Space uses native activation when a button is focused. Sliders retain native keyboard controls. Reduced-motion preference starts the scene paused. Background tabs do not accumulate simulation time and suspend audio. Reset preserves mute and mix preferences for the current visit.
 
 WebGL is the default. `?renderer=canvas` explicitly selects the Canvas comparison renderer. Use `?paused&time=6` for a reproducible opening still. Source errors and unavailable WebGL appear visibly instead of silently rendering an empty scene.
 
@@ -57,11 +61,13 @@ npm run check          # assets, strict TypeScript, build, Node tests, memory-re
 npm run test:browser   # actual Chrome: WebGL/Canvas, desktop/mobile, input and controls
 npm run motion         # animated gait comparisons and contact/performance measurements
 npm run preview:gif    # regenerate the five-second README animation
+npm run audio:preview  # actual offline Web Audio mix, isolated tracks and level metrics
+npm run audio:prepare  # optional: rebuild retained WAV clips using Chrome codecs and tar
 ```
 
 Browser tests use installed Google Chrome (`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` on macOS, `/usr/bin/google-chrome` on Linux). Override with `CHROME_PATH=/path/to/chrome`. Playwright Core does not download a browser. Tests start and stop their own local server; no separate preview is required.
 
-Open **http://localhost:4173/?lab** for live motion inspection. `artifacts/motion-study.html` plays walking and scurrying side by side after `npm run motion`; each two-second loop includes contact overlays and a scrolling diagnostic floor. `motion-metrics.json` records stance drift, support counts and CPU raster timings. These loops reset at their boundaries; they are inspection clips, not seamless animation assets.
+Open **http://localhost:4173/?lab** and press `H` for live motion inspection. `artifacts/motion-study.html` plays walking and scurrying side by side after `npm run motion`; each two-second loop includes contact overlays and a scrolling diagnostic floor. `motion-metrics.json` records stance drift, support counts and CPU raster timings. These loops reset at their boundaries; they are inspection clips, not seamless animation assets.
 
 Inspect `artifacts/browser-motion-lab.png`, `browser-webgl.png`, `browser-mobile.png`, `browser-home.png`, `rat-directions.png`, `lost-memory.png`, `home-memory.png` and `budget.json`. `npm run snapshot` recreates the software renders. The atlas remains **1536 × 1536, 9 MiB decoded**, below the 16 MiB atlas limit. Reserved **384 × 288** and **352 × 288** regions receive the live rat and its cast shadow each frame. WebGL updates those regions with `texSubImage2D`; no additional texture or runtime library is needed.
 
@@ -84,6 +90,7 @@ The uploader's flags follow the [official gcloud storage reference](https://docs
 
 - [How procedural models, animation and pixel rendering work](docs/rat-design.md)
 - [Strategy, rat-motion research, implementation and limits](docs/STRATEGY.md)
+- [Sound design, source credits, mixing and verification](docs/audio-design.md)
 - [Street artwork, reference research and terrain dressing](docs/street-design.md)
 - [Assets, exact prompts, crop registration and provenance](docs/ASSETS.md)
 - [Contributor guidance](AGENTS.md)

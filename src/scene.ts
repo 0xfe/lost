@@ -79,6 +79,8 @@ export function compose(p: Pose, atlas: Atlas, view: View): Frame {
     const tint:Color=[178+p.mood*21,182+p.mood*15,188+p.mood*6,255];
     rect('streetlamp-post',base.x-w*.335,base.y-h*.985,w,h,tint,atlas.lantern);
     rect('streetlamp-halo',flame.x-scale*.37,flame.y-scale*.40,scale*.74,scale*.80,[255,166,54,30*lamp.power],atlas.glow);
+    const flicker=(lamp.power-.8)/.3;
+    rect('candle-flame',flame.x-scale*.034,flame.y-scale*(.08+flicker*.025),scale*.068,scale*(.12+flicker*.035),[255,217,136,150+flicker*70],atlas.glow);
   };
   const visibleLamps=lamps.filter(l=>Math.abs(project(l.x,l.y).x-width*.5)<width*.5+scale*2);
   const details=view.study?[]:streetDetails(p.x-reach,p.x+reach,atlas.relief);

@@ -1,6 +1,6 @@
 # Original art and offline preparation
 
-The original rat and masonry materials and the new lantern/grille sprites were created with built-in `image_gen.imagegen` on 2026-10-06. Paving now uses Rob Tuytel’s CC0 **Cobblestone Large 01** scan from Poly Haven. Grass, broadleaf weeds and rubble are authored meshes baked offline. No fonts or audio are shipped. See [street-design.md](street-design.md) for references, adaptation choices and licenses.
+The original rat and masonry materials and the new lantern/grille sprites were created with built-in `image_gen.imagegen` on 2026-10-06. Paving now uses Rob Tuytel’s CC0 **Cobblestone Large 01** scan from Poly Haven. Grass, broadleaf weeds and rubble are authored meshes baked offline. No fonts are shipped. Recorded CC0 audio, offline processing recipes and source hashes are retained in `assets/audio/`; see [audio-design.md](audio-design.md) for all sound credits and adaptations. See [street-design.md](street-design.md) for references, adaptation choices and licenses.
 
 | Retained source | Purpose |
 | --- | --- |

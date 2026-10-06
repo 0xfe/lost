@@ -1,4 +1,4 @@
-import { clamp, lerp, type Vec2 } from '../math';
+import { clamp, lerp, noise, type Vec2 } from '../math';
 import type { Color } from '../render';
 
 export const STREET_HALF_WIDTH=2.3;
@@ -7,7 +7,7 @@ export const LAMP_SPACING=14;
 export interface StreetLamp { id:number;x:number;y:number;z:number;radius:number;power:number }
 export function lampAt(id:number,time:number):StreetLamp {
   return {id,x:id*LAMP_SPACING+6,y:id%2===0?3.6:-3.6,z:6.35,radius:5.3,
-    power:.96+Math.sin(time*8.3+id*3)*.025+Math.sin(time*14.7+id)*.015};
+    power:.81+noise(time*3.8,id,381)*.24+noise(time*13,id,63)*.07};
 }
 export function nearbyLamps(x:number,time:number,range=2):StreetLamp[]{
   const center=Math.floor((x-6)/LAMP_SPACING);

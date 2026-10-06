@@ -11,6 +11,12 @@ for(const file of ['atlas.png','atlas.json']){
   const data=await readFile(`public/assets/${file}`),name=file.replace('.',`-${hash(data)}.`);
   await copyFile(`public/assets/${file}`,`dist/assets/${name}`); assetURLs[file]=`./assets/${name}`;
 }
+const audio=JSON.parse(await readFile('assets/audio/clips.json','utf8'));
+for(const clip of audio){
+  const file=`${clip.id}.wav`,data=await readFile(`assets/audio/clips/${file}`),name=`${clip.id}-${hash(data)}.wav`;
+  if(createHash('sha256').update(data).digest('hex')!==clip.sha256)throw Error(`Changed audio clip: ${file}`);
+  await copyFile(`assets/audio/clips/${file}`,`dist/assets/${name}`);assetURLs[file]=`./assets/${name}`;
+}
 const result=await build({entryPoints:['src/main.ts','public/style.css'],bundle:true,format:'esm',target:'es2022',
   outdir:'dist/assets',entryNames:'[name]-[hash]',minify:true,sourcemap:true,metafile:true,
   define:{__ASSET_URLS__:JSON.stringify(assetURLs)}});
