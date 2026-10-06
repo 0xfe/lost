@@ -1,0 +1,94 @@
+{
+  "revision": "878c9f6",
+  "description": "Pre-refactor simulation and RGBA hashes, including interpolated poses.",
+  "frames": [
+    {
+      "action": "walk",
+      "heading": 0.05,
+      "ticks": 150,
+      "state": "a00b2bdb51ae9d81fbc01b22c1ab4100eb676837299889fe84916bda7afcb641",
+      "pixels": [
+        "d60595905f8acc79433f72bdf2a1e731d8704e6cb0074fb3e77b7dc648f4b8a3",
+        "21f75d13767f64d3cbf940c2c443e2e36e48fdd461747c29d70dcc5e923ae0f5",
+        "989fe64f849ad42827cf46ad76cb5496c5aac22917a61e7a7a3bc75d049fee72"
+      ]
+    },
+    {
+      "action": "scurry",
+      "heading": 0.05,
+      "ticks": 73,
+      "state": "b6fdf8e89c5f5899596c3900334215af4f8d528e69facf2f5ab4062c936211e2",
+      "pixels": [
+        "f506a6c98cf65a4ec444e4fed9be16eb2831486c358ac4f6c89534acec0adc5f",
+        "e457bbf54c892750940af4ab7686f927bf9a89b557cdee430c53ea05afef47d1",
+        "6254ab4b04c997d07feda76216d13f7ed256d1288aa078e7d01053e83b922ba8"
+      ]
+    },
+    {
+      "action": "groom",
+      "heading": -0.7,
+      "ticks": 80,
+      "state": "212d82710f9014d3c8ed5b7b8d54f40be2660505ac0fd75e79a6f903c23f0ebc",
+      "pixels": [
+        "008347d59734987ddf6d749d4d1f126f4d38b725c1c10e5dd8c66ff8c886053e",
+        "a51d4d6a4dd20d8b0bd7730d33b192f0c7defd697ffc59394da4614a2dbda5cb",
+        "85d66c313ce52e4fb9eca030921b9acc4f34c1324f51b7dab7e166e78eead756"
+      ]
+    },
+    {
+      "action": "sniff",
+      "heading": 1.2,
+      "ticks": 42,
+      "state": "707d22255d1165aa12746b72c1b161f0767608e6b838bd3bc386574ec8ac5f2b",
+      "pixels": [
+        "a25fb00fa5d3b704c6ab28da0027683bc14953f493e5d23ac58d114a00978d6f",
+        "932d6ccc5fe7dfd9f8ff4366996661bb48c5ca8346e852d349c408a73ae2bf87",
+        "4119fc1ae5279ff94fe9d3fb4b9be18696d48df18464f3e93a3d3b0aa82a0634"
+      ]
+    },
+    {
+      "action": "listen",
+      "heading": 2.5,
+      "ticks": 100,
+      "state": "4e030e34e4d93a7ee5bc5e95a512083a42b1dfe5dc52fbb6625153eca8cdb108",
+      "pixels": [
+        "f2b80f1f3560091264d9eb11ee493256af3321541dd525952ae8f0f770cbf43f",
+        "be5f2547fbc9dfeddbee2eb99d4e63fd462b20143122887ea7bd794570dc6193",
+        "722b065ea2c2d4e9bdc071d43b89188bb9d8b8aed21d405d032a4e140d7f91e2"
+      ]
+    },
+    {
+      "action": "walk",
+      "heading": 0,
+      "ticks": 125,
+      "state": "084653f07961102d63c881f6ad7dc1d3da3894f0844c6ed850ec81433903f15a",
+      "pixels": [
+        "fe48e631950cf54a9301a055b7da193509e7f69a35444a1534cc69e81bcca76b",
+        "341ca0dd0934445671277bf78b8703c5b3ca2b03d58c7aacd5509575aeb18339",
+        "e95794e1bd48c17400cba8d12ac126fcc995559127b6624401dec20e79ab6984"
+      ]
+    },
+    {
+      "action": "scurry",
+      "heading": 0,
+      "ticks": 50,
+      "state": "89240d88476a6853cee0896d074c00deebdda80ea4ac171824d1cab547abe92a",
+      "pixels": [
+        "2c03f4ad3040881657d3df785be8167002ec039c0cafba8d6c4bbf5573602371",
+        "1c845c558193bdf656d584001ce3f2fbc74c5aa68a33b0d8484575a79b01a1ad",
+        "3c78f8b28e81ad3ac959ba6ab7f0b8d3eba397ea7198bebcfdd53279e0836d43"
+      ]
+    },
+    {
+      "action": "idle",
+      "heading": 0,
+      "ticks": 55,
+      "state": "e3fbdaa14c9b9f39c5d2ed410218d04c368d2ae65cb90e33cbb8131744d8cfb8",
+      "pixels": [
+        "e64a7c233af7961493fe3ae164da10373551a57385bac62c5699b9e66703b611",
+        "709b1efece833f4fd192510f9efa88472ea19c6c0259394482a66005c8f85319",
+        "26ec1355f68c0c55f93bee08ee27f490272ed6fede6b243b0142c12589cb6350"
+      ]
+    }
+  ]
+}

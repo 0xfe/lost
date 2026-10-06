@@ -15,7 +15,7 @@ The image generator painted brown RGB under the initial sheet. The follow-up edi
 
 The apparent eight-row layout is **not an exact equal-height grid**. Reviewed vertical band boundaries in source pixels are `0, 196, 367, 550, 727, 890, 1080, 1280, 1536`. Each row's four poses share one union-bounds vertical offset into a 256 × 208 registration canvas. They are then sampled with nearest-neighbor at 192 × 144. Never trim each pose independently. Rump and nose landmarks are recorded per direction in the baker.
 
-The archived source heading order is screen-space right, lower-right, down, lower-left, left, upper-left, up, upper-right. `directionRow()` retains the correct world-to-screen mapping for these references. The live rat does not select a directional frame: it is continuously posed geometry authored in `src/rat/model.ts`.
+The archived source heading order is screen-space right, lower-right, down, lower-left, left, upper-left, up, upper-right. `directionRow()` retains the correct world-to-screen mapping for these references. The live rat does not select a directional frame: `src/rat/model.ts` assembles continuously posed body, head, limb and tail geometry using the shared `src/model/` components. See [rat-design.md](rat-design.md) for the complete pipeline.
 
 `scripts/prepare-assets.mjs` retains the 32 reference frames plus 256-pixel stone textures, procedural light/shadow masks and a white utility texel in one 1536 × 896 RGBA texture. It reserves a 384 × 288 region at `(800, 600)` for the live rat. All three renderers apply the same RGBA texture patch there before drawing. No filtering or mipmaps are used. The articulated tail is code-authored 3D geometry and does not need its own bitmap sheet.
 

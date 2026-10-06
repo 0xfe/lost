@@ -5,6 +5,8 @@ import { compose } from '../src/scene';
 import { MemoryRenderer } from '../src/render';
 import type { Atlas } from '../src/assets';
 import { createFeet } from '../src/rat/locomotion';
+import { sproutModel } from '../src/examples/sprout';
+import { rasterMesh } from '../src/model/raster';
 
 await mkdir('artifacts',{recursive:true});
 const atlas=JSON.parse(await readFile('public/assets/atlas.json','utf8')) as Atlas;
@@ -27,4 +29,8 @@ for(let row=0;row<8;row++)for(let pose=0;pose<4;pose++){
 }
 await sharp(sheet,{raw:{width:960,height:1440,channels:4}}).png().toFile('artifacts/rat-directions.png');
 await writeFile('artifacts/budget.json',JSON.stringify({atlas:{width:atlas.width,height:atlas.height,decodedBytes:atlas.width*atlas.height*4,budgetBytes:16*1048576},runtimeDependencies:0},null,2));
-console.log('Wrote Lost/Home memory snapshots, articulated direction/gait sheet, and atlas budget → artifacts/');
+const sprout=rasterMesh(sproutModel({time:1,wind:.3,heading:.4}),
+  {width:128,height:128,x:64,y:105,scale:85},
+  {light:[-1,-1,2],ambient:.5,diffuse:.5,shadeSteps:16,tint:[1,1,1],outline:[35,49,29,150]});
+await sharp(sprout.data,{raw:{width:sprout.width,height:sprout.height,channels:4}}).png().toFile('artifacts/sprout-example.png');
+console.log('Wrote Lost/Home snapshots, direction/gait sheet, reusable sprout example and atlas budget → artifacts/');

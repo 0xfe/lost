@@ -79,10 +79,13 @@ The uploader's flags follow the [official gcloud storage reference](https://docs
 
 ## Design
 
+- [How procedural models, animation and pixel rendering work](docs/rat-design.md)
 - [Strategy, rat-motion research, implementation and limits](docs/STRATEGY.md)
 - [Assets, exact prompts, crop registration and provenance](docs/ASSETS.md)
 - [Contributor guidance](AGENTS.md)
 
-`src/simulation.ts` owns behavior, the motor and tail. `src/rat/` owns contact planning, limb solving, the authored mesh and its small software rasterizer. `src/scene.ts` composes DOM-free draw commands; `src/main.ts` owns browser lifecycle and controls. Software, Canvas and WebGL renderers share the draw-command and texture-patch contract. The camera follows the rat exactly; the street remains world-anchored and bounded in memory.
+`src/model/` provides reusable geometry, materials, camera projection and pixel rasterization. `src/animation/` provides contact planning, joint solving, curves and trailing chains. `src/rat/` supplies anatomy, gait choices and appearance; `src/simulation.ts` owns the actor's behavior and motor. A small plant in `src/examples/sprout.ts` demonstrates reuse and renders to `artifacts/sprout-example.png` during snapshots.
+
+`src/scene.ts` composes DOM-free draw commands; `src/main.ts` owns browser lifecycle and controls. Software, Canvas and WebGL renderers share the draw-command and texture-patch contract. The camera follows the rat exactly; the street remains world-anchored and bounded in memory.
 
 The renderer, math, quad, batch and local-server foundations were reused from [0xfe/jungle](https://github.com/0xfe/jungle), at local revision `50803498ad97b244042fb026ead4fc6fc47f2207`, as requested. Rat behavior, scene, interface and generated art are new. No license has been selected for the original work.

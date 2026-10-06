@@ -1,5 +1,7 @@
 # Study 002: finding his feet
 
+For the detailed construction, animation, texturing and reusable component design, see [rat-design.md](rat-design.md).
+
 ## What changed, and why
 
 The first demo used four generated body poses per direction. Advancing those images by distance did not establish where each paw touched the street. The feet could slide even when the cycle rate looked plausible. Deforming the body image could not independently articulate its hidden limbs, neck or ears, and playing the same images faster could not produce a different gait.

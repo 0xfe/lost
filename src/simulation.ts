@@ -1,16 +1,13 @@
-import { clamp, lerp, type Vec2 } from './math';
-import { createFeet, updateFeet, worldPoint, FEET, GAITS, type Foot, type Gait } from './rat/locomotion';
+import { constrainContactTurn } from './animation/contacts';
+import { updateTrailingChain } from './animation/chain';
+import { clamp, lerp } from './math';
+import { createFeet, updateFeet, FEET, GAITS, type Gait } from './rat/locomotion';
+import type { Action, Pose } from './rat/types';
 
 export const TAU = Math.PI * 2;
 export const STREET_HALF_WIDTH = 2.3;
-export type Action = 'idle' | 'walk' | 'scurry' | 'sniff' | 'listen' | 'groom';
+export type { Action, Pose } from './rat/types';
 export const ACTIONS: Action[] = ['idle', 'walk', 'scurry', 'sniff', 'listen', 'groom'];
-export interface Pose extends Vec2 {
-  heading: number; speed: number; stride: number; time: number;
-  tail: Vec2[]; action: Action; mood: number;
-  feet:Foot[]; gait:Gait; gallop:number; activity:number;
-  sniff:number; listen:number; groom:number; headYaw:number;
-}
 export const angleDelta = (a: number, b: number) => Math.atan2(Math.sin(b - a), Math.cos(b - a));
 export function directionRow(heading: number): number {
   // Source rows follow SCREEN directions, not world headings.
@@ -54,10 +51,7 @@ export class Rat {
     const error = angleDelta(p.heading, this.targetHeading);
     let turn=clamp(error,-dt*2.8,dt*2.8);
     // Let a planted pivot unload its feet before twisting the shoulders out of reach.
-    for(let i=0;i<4;i++)if(p.feet[i]!.contact){
-      const home=FEET[i]!,candidate=worldPoint({...p,heading:p.heading+turn},home.x,home.y);
-      if(Math.hypot(candidate.x-p.feet[i]!.x,candidate.y-p.feet[i]!.y)>.22)turn=0;
-    }
+    turn=constrainContactTurn(p,FEET,turn,.22);
     p.heading+=turn;
     const moving = this.requested === 'walk' || this.requested === 'scurry';
     // Turn first; translation follows the body's heading.
@@ -72,7 +66,7 @@ export class Rat {
     } else { p.speed = 0; }
     p.action = p.speed > .02 ? (this.requested === 'scurry' ? 'scurry' : 'walk') : moving ? 'idle' : this.requested;
     const nextGait:Gait=this.requested==='scurry'&&p.speed>1.5?'scurry':'walk';
-    // Commit a different footfall schedule at a cycle boundary; active swings keep their targets.
+    // Commit at a cycle boundary; active swings keep their phase endpoints.
     if(Math.floor(p.stride)!==Math.floor(this.previous.stride)||p.speed<.01)p.gait=nextGait;
     p.gallop=lerp(p.gallop,p.gait==='scurry'?1:0,1-Math.exp(-dt*9));
     p.activity=lerp(p.activity,Math.min(1,p.speed/.6),1-Math.exp(-dt*12));
@@ -85,19 +79,14 @@ export class Rat {
   }
   private updateTail(dt: number): void {
     const p = this.current;
-    p.tail[0] = { x: p.x - Math.cos(p.heading) * .65, y: p.y - Math.sin(p.heading) * .65 };
-    // A damped chain trails actual travel. Curvature propagates from root to tip.
-    for (let i = 1; i < p.tail.length; i++) {
-      const parent = p.tail[i - 1]!, point = p.tail[i]!;
-      const bend = Math.sin(p.time * 1.8 - i * .28) * .22 * i / p.tail.length;
-      const follow = p.heading + Math.sin(p.stride * TAU - i * .23) * .09 * Math.min(1, p.speed);
-      point.x = lerp(point.x, parent.x - Math.cos(follow + bend) * .062, dt * 3);
-      point.y = lerp(point.y, parent.y - Math.sin(follow + bend) * .062, dt * 3);
-      const dx = point.x - parent.x, dy = point.y - parent.y;
-      const length = Math.hypot(dx, dy) || 1;
-      point.x = parent.x + dx / length * .062; point.y = parent.y + dy / length * .062;
-    }
+    const root={x:p.x-Math.cos(p.heading)*.65,y:p.y-Math.sin(p.heading)*.65};
+    updateTrailingChain(p.tail,root,.062,dt,3,i=>{
+      const bend=Math.sin(p.time*1.8-i*.28)*.22*i/p.tail.length;
+      const follow=p.heading+Math.sin(p.stride*TAU-i*.23)*.09*Math.min(1,p.speed);
+      return follow+bend;
+    });
   }
+
   sample(alpha: number): Pose {
     const a = this.previous, b = this.current;
     return { ...b, x: lerp(a.x, b.x, alpha), y: lerp(a.y, b.y, alpha),
