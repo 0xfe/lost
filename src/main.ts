@@ -48,7 +48,6 @@ function syncAudio(){
   button.disabled=state.loading;button.setAttribute('aria-pressed',String(!state.muted));
   button.setAttribute('aria-label',state.loading?'Loading sound':state.error?'Retry sound':state.muted?'Enable sound':'Mute sound');
   button.title=state.error||(state.muted?'Enable sound (M)':'Mute sound (M)');
-  $('#sound-label').textContent=state.loading?'Loading…':state.error?'Retry sound':state.muted?'Sound off':'Sound on';
   $('#audio-status').textContent=state.error;
 }
 async function start(){

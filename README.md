@@ -21,7 +21,7 @@ The browser has **zero runtime dependencies**. TypeScript, esbuild, Sharp, tsx a
 
 ## Controls
 
-Each visit opens on a still, silent frame. Press the small centered **Play** button to start with sound. The interface stays hidden; press `H` or tap the street five times quickly on mobile to reveal it. The top-right sound button remains available after starting. Audio downloads only after Play. Headphones reveal the stereo positioning.
+Each visit opens on a still, silent frame. Press the small centered **Play** button to start with sound. The interface stays hidden; press `H` or tap the street five times quickly on mobile to reveal it. The borderless, icon-only sound button remains available at the top right after starting. Audio downloads only after Play. Headphones reveal the stereo positioning.
 
 | Control | Behavior |
 | --- | --- |
