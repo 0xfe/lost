@@ -75,16 +75,18 @@ Inspect `artifacts/browser-motion-lab.png`, `browser-webgl.png`, `browser-mobile
 
 `npm run build` produces a self-contained `dist/` folder. Serve it with any static host, including under a subdirectory: all delivered references are relative and assets are content-hashed. Upload assets before `index.html`; cache hashed assets immutably and give HTML a short cache lifetime.
 
-For Google Cloud Storage, an explicit destination is required:
+Upload to the same Google Cloud Storage bucket as Infinite Jungle, under **`/lost/`**:
 
 ```sh
-npm run deploy -- --dry-run gs://YOUR_BUCKET/lost
-npm run deploy -- gs://YOUR_BUCKET/lost
+./upload.sh --dry-run       # build and print commands; no cloud writes
+./upload.sh                 # publish to gs://muthanna.com/lost/
+./upload.sh --clean         # publish, wait six minutes, then prune old Lost assets
+npm run upload             # same uploader through npm
 ```
 
-The script checks/builds first, copies assets before HTML, and never deletes remote files. It requires your existing `gcloud` login. Nothing has been published by this initial implementation. No host/domain is assumed.
+Requires installed/authenticated `gcloud` with access to `muthanna.com` and its existing public-read setup. Each upload builds and stages a release, uploads hashed assets with a one-day immutable cache, then publishes HTML with a five-minute cache. Old assets remain unless `--clean` is supplied. Cleanup is restricted to `lost/` and aborts if the remote index changed during the wait. Serialize uploads to this prefix. See [deployment details](docs/DEPLOYMENT.md).
 
-The uploader's flags follow the [official gcloud storage reference](https://docs.cloud.google.com/sdk/gcloud/reference/storage/rsync). Its argument validation, dry-run behavior, cache settings, ordering and failure handling are tested with a mock uploader; no live deployment has been tested.
+The existing generic uploader remains available for other buckets: `npm run deploy -- [--dry-run] gs://YOUR_BUCKET/lost`. It retains its one-year asset cache and does not prune. Script behavior is tested with a recording-only cloud CLI; creating these scripts does not deploy the site.
 
 ## Design
 

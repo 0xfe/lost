@@ -21,7 +21,8 @@
     "check": "npm run build && npm test && npm run snapshot",
     "deploy": "bash scripts/deploy.sh",
     "audio:prepare": "node scripts/prepare-audio.mjs",
-    "audio:preview": "node scripts/audio-preview.mjs"
+    "audio:preview": "node scripts/audio-preview.mjs",
+    "upload": "bash upload.sh"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
