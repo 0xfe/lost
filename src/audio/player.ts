@@ -1,7 +1,7 @@
 import type { Pose } from '../rat/types';
 import { SoundGraph } from './graph';
 import { clips, StreetScore, type Clip, type SoundGroup } from './score';
-/** Browser lifetime and autoplay policy. Nothing is fetched or opened until the sound button is pressed. */
+/** Browser lifetime and autoplay policy. Nothing is fetched or opened until an explicit playback gesture. */
 export class StreetAudio {
   private context?:AudioContext;
   private graph?:SoundGraph;

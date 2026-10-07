@@ -2,11 +2,11 @@
 
 The soundscape uses real CC0 recordings, edited into small local PCM clips and arranged procedurally. It is deliberately quiet: the rat is a small animal in a large street. There is no music, dialogue script, runtime audio library, CDN or external service.
 
-Every visit starts muted, with the interface hidden. The top-right button or `M` enables sound. `H` / Show controls reveals the menu, including **Sound mix** with independent rain, insects, foliage, people, candle and rat sliders. Zero silences a group, including its reflection send. The Rain checkbox controls both visible rain and its two audio layers. Pause and backgrounding suspend the audio clock. Reset clears the score and active sounds while retaining the current mute/mix choices.
+Every visit starts on a still, silent frame with a small centered Play button. Pressing it unlocks audio and starts the scene with sound once recordings are ready. The top-right button or `M` then toggles sound. `H` or five quick single-finger taps on the street toggles the menu, including **Sound mix** with independent rain, insects, foliage, people, candle and rat sliders. Zero silences a group, including its reflection send. The Rain checkbox controls both visible rain and its two audio layers. Pause and backgrounding suspend the audio clock. Reset clears the score and active sounds while retaining the current mute/mix choices.
 
 ## Recordings and provenance
 
-All six sources are offered under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Original downloads, source-page snapshots, author credits, URLs and SHA-256 hashes are retained under `assets/audio/`. Licenses apply to these recordings, not automatically to the original project code or artwork.
+All six sources are offered under [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/). Original downloads, curated author credits, license identifiers, URLs and SHA-256 hashes are retained under `assets/audio/`. Licenses apply to these recordings, not automatically to the original project code or artwork.
 
 | Material | Creator and source | Use |
 | --- | --- | --- |
@@ -25,7 +25,7 @@ The voices are an adapted room-crowd recording, not isolated period dialogue. Hu
 
 The preparation script downmixes to mono at 24 kHz, removes DC, normalizes toward 0.12 RMS with a 0.85 peak ceiling, trims leading silence from impact recordings, and fades transient edges. Ambient loops crossfade the tail against the head over up to 650 ms. Source crop recipes, frames and final hashes live in `clips.json`. Rain was explicitly supplied as non-looping audio: the prepared versions provide the loop seam. Mono clips are positioned independently in the stereo mixer.
 
-Fourteen PCM16 WAVs total approximately 3 MB delivered / 6 MB decoded. WAV avoids runtime codec differences. `npm run build` verifies hashes and copies content-hashed WAVs into `dist/assets`; source recordings and archives are not deployed. Fetch/decode happens once, after a sound-button gesture. Decoder implementations may change authoring results across Chrome versions; the checked-in WAVs are the canonical build inputs.
+Fourteen PCM16 WAVs total approximately 3 MB delivered / 6 MB decoded. WAV avoids runtime codec differences. `npm run build` verifies hashes and copies content-hashed WAVs into `dist/assets`; source recordings and archives are not deployed. Fetch/decode happens once, after the Play gesture. Decoder implementations may change authoring results across Chrome versions; the checked-in WAVs are the canonical build inputs.
 
 ## Score and world behavior
 
@@ -52,10 +52,14 @@ The live listener follows the rat. Rain is broad camera-relative ambience; every
 
 ## Browser lifecycle and verification
 
-`src/audio/player.ts` owns lazy loading, user-gesture resume, mute, suspension, retries, score reset and mix preferences. Audio failures leave the rendering usable and change the button to Retry sound. Preferences are in-memory only; reload always starts muted. Controls are hidden directly in HTML to avoid a startup flash.
+`src/audio/player.ts` owns lazy loading, user-gesture resume, mute, suspension, retries, score reset and mix preferences. Audio failures leave the rendering usable and change the button to Retry sound. Preferences are in-memory only; reload always returns to the silent Play screen. Controls are hidden directly in HTML to avoid a startup flash.
 
 - `npm run check`: contact synchronization, silence after settling, deterministic passes, different footstep families, distance/pan/filter behavior, lamp registration, rain gating, source/clip integrity and delivery budget, alongside existing visual/mechanical checks.
-- `npm run test:browser`: real Chrome WebGL/Canvas and responsive UI, no audio load before consent, gesture unlock, paused startup, mute/unmute, pause/resume, category control and a failed-decode retry.
+- `npm run test:browser`: real Chrome WebGL/Canvas and responsive UI, no audio load before Play, gesture unlock, still startup, mute/unmute, pause/resume, category control and a failed-decode retry.
 - `npm run audio:preview`: renders 45 seconds through the production graph in a real OfflineAudioContext, with full street, isolated rat and isolated people tracks. Writes `artifacts/audio-street.wav`, `audio-rat.wav`, `audio-people.wav` and level/voice-budget metrics. Checks non-silence, stereo difference and output headroom.
 
 Offline levels and browser graph tests do not replace headphone listening or testing Safari/iOS audio interruptions on a physical phone. Use the isolated tracks to tune foley and the full mix to judge masking; do not normalize every layer to equal perceived loudness.
+
+## Why source HTML is not retained
+
+The initial audio commit included whole source-page HTML as provenance. Freesound's page carried an unrelated Mapbox browser token in its map scripts, which triggered GitHub push protection. Those six HTML snapshots were removed from both unpublished commits. Keep the compact `provenance.json` records and the credits above; downloading a public webpage does not make every embedded token appropriate for source control. `npm run secrets:check` checks working files and reachable Git history without printing matched values.

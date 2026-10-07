@@ -7,3 +7,6 @@ artifacts/
 .env.*
 !.env.example
 public/assets/
+
+# Keep curated provenance, never complete third-party web pages.
+assets/audio/source/*.html

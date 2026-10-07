@@ -18,11 +18,12 @@
     "motion": "tsx scripts/motion-preview.ts",
     "preview:gif": "npm run assets && tsx scripts/readme-preview.ts",
     "test:browser": "node scripts/browser-test.mjs",
-    "check": "npm run build && npm test && npm run snapshot",
+    "check": "npm run secrets:check && npm run build && npm test && npm run snapshot",
     "deploy": "bash scripts/deploy.sh",
     "audio:prepare": "node scripts/prepare-audio.mjs",
     "audio:preview": "node scripts/audio-preview.mjs",
-    "upload": "bash upload.sh"
+    "upload": "bash upload.sh",
+    "secrets:check": "node scripts/check-secrets.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
