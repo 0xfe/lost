@@ -3,7 +3,7 @@ import { readFile, stat, realpath } from 'node:fs/promises';
 import { resolve, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.map': 'application/json', '.wav': 'audio/wav', '.txt': 'text/plain' };
+const types = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.png': 'image/png', '.svg': 'image/svg+xml', '.map': 'application/json', '.wav': 'audio/wav', '.m4a': 'audio/mp4', '.txt': 'text/plain' };
 
 /** Local preview, optionally with deployment cache headers and a real subdirectory mount. */
 export function createSiteServer(root, { cache = false, basePath = '/' } = {}) {

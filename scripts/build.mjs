@@ -17,6 +17,11 @@ for(const clip of audio){
   if(createHash('sha256').update(data).digest('hex')!==clip.sha256)throw Error(`Changed audio clip: ${file}`);
   await copyFile(`assets/audio/clips/${file}`,`dist/assets/${name}`);assetURLs[file]=`./assets/${name}`;
 }
+const music=JSON.parse(await readFile('assets/audio/music/manifest.json','utf8'));
+const musicData=await readFile(`assets/audio/music/${music.file}`);
+if(createHash('sha256').update(musicData).digest('hex')!==music.sha256)throw Error('Changed soundtrack asset');
+const musicName=`soundtrack-${hash(musicData)}.m4a`;
+await writeFile(`dist/assets/${musicName}`,musicData);assetURLs['soundtrack.m4a']=`./assets/${musicName}`;
 const result=await build({entryPoints:['src/main.ts','public/style.css'],bundle:true,format:'esm',target:'es2022',
   outdir:'dist/assets',entryNames:'[name]-[hash]',minify:true,sourcemap:true,metafile:true,
   define:{__ASSET_URLS__:JSON.stringify(assetURLs)}});

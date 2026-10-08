@@ -39,13 +39,18 @@
       </div></section>
       <section class="atmosphere"><h2>Light at the end <output id="mood-label">Lost</output></h2><label class="sr-only" for="mood">Mood, from lost to home</label><input id="mood" type="range" min="0" max="100" value="12"><div class="range-labels"><span>LOST</span><span>HOME</span></div><div class="small-controls"><label><input id="rain" type="checkbox" checked> Rain</label><label for="zoom">Closer <input id="zoom" type="range" min="60" max="150" value="90"></label></div></section>
     </div>
-    <details class="sound-mix"><summary>Sound mix</summary><div>
-      <label>Rain & drizzle<input data-sound="rain" type="range" min="0" max="150" value="100"></label>
-      <label>Crickets<input data-sound="insects" type="range" min="0" max="150" value="100"></label>
-      <label>Foliage<input data-sound="foliage" type="range" min="0" max="150" value="100"></label>
-      <label>Passing people<input data-sound="people" type="range" min="0" max="150" value="100"></label>
-      <label>Candles<input data-sound="candle" type="range" min="0" max="150" value="100"></label>
-      <label>Paws & crawl<input data-sound="rat" type="range" min="0" max="150" value="100"></label>
+    <details class="sound-mix"><summary>Audio</summary><div class="audio-panel">
+      <p class="audio-intro">Balance the soundtrack and the street.<button id="reset-mix" type="button">Reset mix</button></p>
+      <div class="audio-sliders">
+        <label for="volume-master"><span>Master volume<output id="level-master" for="volume-master">100%</output></span><input id="volume-master" data-sound="master" type="range" min="0" max="100" value="100"></label>
+        <label for="volume-music"><span>Music<output id="level-music" for="volume-music">100%</output></span><input id="volume-music" data-sound="music" type="range" min="0" max="150" value="100"></label>
+        <label for="volume-rain"><span>Rain & drizzle<output id="level-rain" for="volume-rain">100%</output></span><input id="volume-rain" data-sound="rain" type="range" min="0" max="150" value="100"></label>
+        <label for="volume-insects"><span>Crickets<output id="level-insects" for="volume-insects">100%</output></span><input id="volume-insects" data-sound="insects" type="range" min="0" max="150" value="100"></label>
+        <label for="volume-foliage"><span>Foliage<output id="level-foliage" for="volume-foliage">100%</output></span><input id="volume-foliage" data-sound="foliage" type="range" min="0" max="150" value="100"></label>
+        <label for="volume-people"><span>Passing people<output id="level-people" for="volume-people">100%</output></span><input id="volume-people" data-sound="people" type="range" min="0" max="150" value="100"></label>
+        <label for="volume-candle"><span>Candles<output id="level-candle" for="volume-candle">100%</output></span><input id="volume-candle" data-sound="candle" type="range" min="0" max="150" value="100"></label>
+        <label for="volume-rat"><span>Paws & crawl<output id="level-rat" for="volume-rat">100%</output></span><input id="volume-rat" data-sound="rat" type="range" min="0" max="150" value="100"></label>
+      </div>
     </div></details>
     <footer><span>MEDIEVAL QUARTER <span class="separator">·</span> AFTER MIDNIGHT</span><span><kbd>Space</kbd> pause <span class="separator">/</span> <kbd>H</kbd> hide interface</span><span id="renderer-label">WEBGL</span></footer>
   </aside>

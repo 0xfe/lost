@@ -1,15 +1,17 @@
+import { MusicLoop } from './music';
 import { random, type Vec2 } from '../math';
 import { groups, mix, spatial, type Clip, type Sound, type SoundGroup } from './score';
 interface Voice { sound:Sound;source:AudioBufferSourceNode;gain:GainNode;pan:StereoPannerNode;filter:BiquadFilterNode;nodes:AudioNode[];end:number }
 /** Shared by live playback and OfflineAudioContext previews. No app or DOM dependency. */
 export class SoundGraph {
   readonly master:GainNode;
+  readonly music?:MusicLoop;
   readonly buses={} as Record<SoundGroup,GainNode>;
   private reverb:ConvolverNode;
   private compressor:DynamicsCompressorNode;
   private voices=new Map<string,Voice>();
   private sends={} as Record<SoundGroup,GainNode>;
-  constructor(readonly context:BaseAudioContext,private buffers:Map<Clip,AudioBuffer>){
+  constructor(readonly context:BaseAudioContext,private buffers:Map<Clip,AudioBuffer>,music?:AudioBuffer){
     const c=context;this.master=c.createGain();this.master.gain.value=.85;
     this.compressor=c.createDynamicsCompressor();this.compressor.threshold.value=-12;this.compressor.knee.value=12;this.compressor.ratio.value=4;
     this.master.connect(this.compressor).connect(c.destination);
@@ -23,6 +25,7 @@ export class SoundGraph {
     this.reverb.buffer=impulse;this.reverb.connect(this.master);
     for(const group of groups){const bus=c.createGain();bus.gain.value=mix[group];bus.connect(this.master);this.buses[group]=bus;
       const send=c.createGain();send.gain.value=mix[group];send.connect(this.reverb);this.sends[group]=send;}
+    if(music)this.music=new MusicLoop(c,music,this.buses.music);
   }
   get count(){return this.voices.size;}
   setGroup(group:SoundGroup,value:number,at=this.context.currentTime){
@@ -67,5 +70,5 @@ export class SoundGraph {
     for(const [id,v] of this.voices)if(v.end+.02<at)this.voices.delete(id);
   }
   clear(){for(const id of this.voices.keys())this.remove(id);}
-  dispose(){this.clear();this.reverb.disconnect();this.master.disconnect();this.compressor.disconnect();for(const group of groups){this.buses[group].disconnect();this.sends[group].disconnect();}}
+  dispose(){this.music?.stop();this.clear();this.reverb.disconnect();this.master.disconnect();this.compressor.disconnect();for(const group of groups){this.buses[group].disconnect();this.sends[group].disconnect();}}
 }

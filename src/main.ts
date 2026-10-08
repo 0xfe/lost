@@ -61,7 +61,13 @@ async function start(){
 }
 $('#play').onclick=()=>{void start();};
 $('#sound').onclick=()=>{if(started)void audio.toggle();};
-document.querySelectorAll<HTMLInputElement>('[data-sound]').forEach(input=>input.oninput=()=>audio.setGroup(input.dataset.sound as SoundGroup,Number(input.value)/100));
+function volume(input:HTMLInputElement){
+  const key=input.dataset.sound!,value=Number(input.value)/100;
+  if(key==='master')audio.setMaster(value);else audio.setGroup(key as SoundGroup,value);
+  $<HTMLOutputElement>(`#level-${key}`).value=`${input.value}%`;
+}
+document.querySelectorAll<HTMLInputElement>('[data-sound]').forEach(input=>input.oninput=()=>volume(input));
+$('#reset-mix').onclick=()=>document.querySelectorAll<HTMLInputElement>('[data-sound]').forEach(input=>{input.value='100';volume(input);});
 function update(dt:number){rat.update(dt);audio.update(rat.previous,rat.current);}
 function sync(){
   audio.setActive((starting||(started&&!paused))&&!document.hidden);

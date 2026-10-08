@@ -1,0 +1,18 @@
+{
+  "title": "Lost Soundtrack",
+  "source": "source.m4a",
+  "originalFilename": "Lost Soundtrack.m4a",
+  "origin": "Supplied by the user in tmp; moved to assets on 2026-10-08",
+  "license": "User-supplied; no third-party license asserted",
+  "sourceSha256": "609e0dbfa67ee5aae3137e9b86a30bd7aac2cb7800445ce119f3ed6f1f1900ae",
+  "sourceBytes": 3338259,
+  "file": "soundtrack.m4a",
+  "sha256": "ab564205eeeed210a69d6f9b3b6b48d71af803edbe5aebb0dbb8cf335f4be65b",
+  "bytes": 3537775,
+  "rate": 32000,
+  "channels": 2,
+  "frames": 5688544,
+  "duration": 177.767,
+  "crossfadeSeconds": 3,
+  "processing": "Chrome native decode to stereo 32 kHz PCM16; Core Audio AAC 160 kb/s. Runtime blends final three seconds into the opening and loops to second three, preserving the introduction on first play."
+}

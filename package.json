@@ -23,7 +23,8 @@
     "audio:prepare": "node scripts/prepare-audio.mjs",
     "audio:preview": "node scripts/audio-preview.mjs",
     "upload": "bash upload.sh",
-    "secrets:check": "node scripts/check-secrets.mjs"
+    "secrets:check": "node scripts/check-secrets.mjs",
+    "music:prepare": "node scripts/prepare-music.mjs"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

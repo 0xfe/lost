@@ -4,7 +4,7 @@
 
 ![A rat sniffing, walking and scurrying along a candlelit medieval street](docs/media/lost.gif)
 
-This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 003 adds irregular, seeded exploration to a continuously articulated 3D rat, rasterized into pixel art. He mostly walks, changes pace, follows side scents and returns to his route. Wider responsive framing and larger stones establish his small size; upright street lamps light both the world and the rat, with a shadow projected from his posed mesh. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Scanned weathered cobbles, generated castle masonry and researched lantern/grille sprites provide the street. Seeded grass, broadleaf weeds, rubble and soil deposits soften its edges, and the original generated rat supplies an appearance reference and fur material. The street now has a spatial soundscape: rain, crickets, foliage, distant passers, candle crackle and contact-timed paw foley. This is a motion study, not a complete movie.
+This demo explores rendering, atmosphere, camera-relative movement and a rat's performance. Study 003 adds irregular, seeded exploration to a continuously articulated 3D rat, rasterized into pixel art. He mostly walks, changes pace, follows side scents and returns to his route. Wider responsive framing and larger stones establish his small size; upright street lamps light both the world and the rat, with a shadow projected from his posed mesh. World-space paw contacts drive its limbs; walking and scurrying have separate footfall schedules and body motion. Scanned weathered cobbles, generated castle masonry and researched lantern/grille sprites provide the street. Seeded grass, broadleaf weeds, rubble and soil deposits soften its edges, and the original generated rat supplies an appearance reference and fur material. The supplied soundtrack loops beneath a spatial soundscape: rain, crickets, foliage, distant passers, candle crackle and contact-timed paw foley. This is a motion study, not a complete movie.
 
 ## Run
 
@@ -40,7 +40,8 @@ Each visit opens on a still, silent frame. Press the small centered **Play** but
 | Light at the end | Ease the palette from cold/lost to warmer/home |
 | Rain | Toggle rain streaks and rain/drizzle sound; the street stays wet |
 | Sound button / `M` | Enable or mute all audio; available at the top right after Play |
-| Sound mix | Independent rain, crickets, foliage, people, candle and paw/crawl levels; zero silences a group |
+| Audio panel | Master volume plus independent music, rain, crickets, foliage, people, candle and paw/crawl levels, with percentage readouts |
+| Reset mix | Restore the balanced audio defaults; retain mute state |
 | Closer | Adjust framing; starts at 90%, with extra room on narrow or short screens |
 | `H` / five quick taps | Toggle the interface; the minus button also hides it |
 | Motion lab | Open contact indicators, playback speed and joint overlays |
@@ -51,7 +52,7 @@ Each visit opens on a still, silent frame. Press the small centered **Play** but
 | Field notes | About the study and keyboard reference |
 | Fullscreen icon | Toggle browser fullscreen where supported |
 
-Space uses native activation when a button is focused. Sliders retain native keyboard controls. The scene is paused for everyone until Play is explicitly pressed. Background tabs do not accumulate simulation time and suspend audio. Reset preserves mute and mix preferences for the current visit.
+Space uses native activation when a button is focused. Sliders retain native keyboard controls. The scene is paused for everyone until Play is explicitly pressed. Background tabs do not accumulate simulation time and suspend audio. Reset restarts the soundtrack and preserves mute and mix preferences for the current visit. Open **Audio** in the menu (`H` or five quick taps) to balance music and the street; zero silences the selected group.
 
 WebGL is the default. `?renderer=canvas` explicitly selects the Canvas comparison renderer. Use `?paused&time=6` for a reproducible opening still. Source errors and unavailable WebGL appear visibly instead of silently rendering an empty scene.
 
@@ -63,8 +64,9 @@ npm run check          # assets, strict TypeScript, build, Node tests, memory-re
 npm run test:browser   # actual Chrome: WebGL/Canvas, desktop/mobile, input and controls
 npm run motion         # animated gait comparisons and contact/performance measurements
 npm run preview:gif    # regenerate the five-second README animation
-npm run audio:preview  # actual offline Web Audio mix, isolated tracks and level metrics
+npm run audio:preview  # actual offline mix, music-loop seam, isolated tracks and level metrics
 npm run audio:prepare  # optional: rebuild retained WAV clips using Chrome codecs and tar
+npm run music:prepare  # optional macOS authoring: rebuild AAC soundtrack using Chrome and afconvert
 ```
 
 Browser tests use installed Google Chrome (`/Applications/Google Chrome.app/Contents/MacOS/Google Chrome` on macOS, `/usr/bin/google-chrome` on Linux). Override with `CHROME_PATH=/path/to/chrome`. Playwright Core does not download a browser. Tests start and stop their own local server; no separate preview is required.

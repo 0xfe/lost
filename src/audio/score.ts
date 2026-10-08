@@ -2,12 +2,12 @@ import { clamp, hash, noise, random, type Vec2 } from '../math';
 import type { Pose } from '../rat/types';
 import { nearbyLamps } from '../world/street';
 
-export const groups=['rain','insects','foliage','people','candle','rat'] as const;
+export const groups=['music','rain','insects','foliage','people','candle','rat'] as const;
 export type SoundGroup=typeof groups[number];
 export type Clip='rain'|'drizzle'|'crickets'|'candle'|'voices'|`leaves${1|2|3}`|`stone${1|2|3}`|`sand${1|2|3}`;
 export const clips:Clip[]=['rain','drizzle','crickets','candle','voices','leaves1','leaves2','leaves3','stone1','stone2','stone3','sand1','sand2','sand3'];
 /** Gains act on RMS-normalized recordings. All distances are world units. */
-export const mix:Record<SoundGroup,number>={rain:.34,insects:.24,foliage:.27,people:.42,candle:.15,rat:.55};
+export const mix:Record<SoundGroup,number>={music:.28,rain:.34,insects:.24,foliage:.27,people:.42,candle:.15,rat:.55};
 export interface Sound extends Vec2 {
   id:string;clip:Clip;group:SoundGroup;gain:number;rate:number;cutoff:number;wet:number;
   z?:number;at:number;duration:number;offset:number;vx?:number;loop?:boolean;highpass?:number;
